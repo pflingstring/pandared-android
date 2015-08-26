@@ -1,46 +1,61 @@
 package my.fancyapp;
 
-import android.support.v7.app.ActionBarActivity;
+import android.widget.TextView;
+import android.app.Activity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.View;
 
-import java.net.HttpURLConnection;
-import java.net.URL;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.Response;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends Activity
 {
+    String url = "https://api.panda.red/auth/default";
+    RequestQueue queue;
+    TextView textView;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        textView = (TextView) findViewById(R.id.content);
+        queue = Volley.newRequestQueue(this);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
+    public void myClicker(View view) throws JSONException
     {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
+        Response.Listener<JSONObject> resListener = new Response.Listener<JSONObject>()
         {
-            return true;
-        }
+            @Override
+            public void onResponse(JSONObject response)
+            {
+                textView.setText(response.toString());
+            }
+        };
 
-        return super.onOptionsItemSelected(item);
+        Response.ErrorListener errListener = new Response.ErrorListener()
+        {
+            @Override
+            public void onErrorResponse(VolleyError error)
+            {
+                textView.setText("ERROR");
+            }
+        };
+
+        JSONObject jsonObj = new JSONObject("{username: neex1, password: nixnix}");
+        JsonObjectRequest jsonReq = new JsonObjectRequest(1, url, jsonObj, resListener, errListener);
+
+        queue.add(jsonReq);
     }
+
+
 }
