@@ -1,25 +1,24 @@
 package my.fancyapp;
 
-import android.widget.TextView;
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.View;
-
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.AuthFailureError;
 import com.android.volley.toolbox.Volley;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.Response;
 
+import android.widget.TextView;
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+
 import org.json.JSONException;
-import org.json.JSONObject;
 
 
 public class MainActivity extends Activity
 {
-    String url = "https://api.panda.red/auth/default";
     RequestQueue queue;
     TextView textView;
+    TextView passkey;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -28,17 +27,18 @@ public class MainActivity extends Activity
         setContentView(R.layout.activity_main);
 
         textView = (TextView) findViewById(R.id.content);
+        passkey  = (TextView) findViewById(R.id.passkey);
         queue = Volley.newRequestQueue(this);
     }
 
     public void myClicker(View view) throws JSONException
     {
-        Response.Listener<JSONObject> resListener = new Response.Listener<JSONObject>()
+        Response.Listener<String> resListener = new Response.Listener<String>()
         {
             @Override
-            public void onResponse(JSONObject response)
+            public void onResponse(String response)
             {
-                textView.setText(response.toString());
+                textView.setText(response);
             }
         };
 
@@ -47,15 +47,13 @@ public class MainActivity extends Activity
             @Override
             public void onErrorResponse(VolleyError error)
             {
-                textView.setText("ERROR");
+                    textView.setText("ERROR");
             }
         };
 
-        JSONObject jsonObj = new JSONObject("{username: neex1, password: nixnix}");
-        JsonObjectRequest jsonReq = new JsonObjectRequest(1, url, jsonObj, resListener, errListener);
+        String loginData = "{\"username\" : \"neex1\", \"password\" : \"nixnix\"}";
+        AuthRequest authRequest = new AuthRequest(loginData, resListener, errListener);
 
-        queue.add(jsonReq);
+        queue.add(authRequest);
     }
-
-
 }
