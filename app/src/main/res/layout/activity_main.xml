@@ -5,17 +5,14 @@
     android:paddingRight="16dp"
     android:orientation="vertical" >
 
-    <Button
-        android:onClick="myClicker"
-        android:text="@string/button"
+    <TextView
+        android:id="@+id/userDetails"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
-
 
     <TextView
-        android:id="@+id/content"
+        android:id="@+id/authToken"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
-
 
 </LinearLayout>
