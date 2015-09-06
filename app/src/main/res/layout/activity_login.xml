@@ -29,7 +29,7 @@
 
         android:id="@+id/login"
         android:text="@string/login"
-        android:onClick="login"
+        android:onClick="loginButton"
         />
 
 </LinearLayout>
