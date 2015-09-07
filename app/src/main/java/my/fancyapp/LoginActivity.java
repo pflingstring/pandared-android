@@ -83,6 +83,7 @@ public class LoginActivity extends Activity
                 Intent mainPage = new Intent(getApplicationContext(), MainActivity.class);
                 mainPage.putExtra(USER_DETAILS, AuthRequest.getUserDetails(response));
                 startActivity(mainPage);
+                finish();
             }
         };
 

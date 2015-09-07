@@ -32,6 +32,7 @@ public class MainActivity extends Activity
         editor.apply();
         Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
         startActivity(loginIntent);
+        finish();
     }
 }
 
