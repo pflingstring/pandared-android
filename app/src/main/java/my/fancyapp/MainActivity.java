@@ -1,5 +1,9 @@
 package my.fancyapp;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.content.Intent;
 import android.app.Activity;
@@ -17,6 +21,22 @@ public class MainActivity extends Activity
         String userDetails = intent.getStringExtra(LoginActivity.USER_DETAILS);
         TextView userDetailsView = (TextView) findViewById(R.id.userDetails);
         userDetailsView.setText(userDetails);
+
+        Button logoutBtn = (Button) findViewById(R.id.logout);
+        logoutBtn.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                SharedPreferences preferences = PreferenceManager
+                        .getDefaultSharedPreferences(getApplicationContext());
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.clear();
+                editor.apply();
+                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(loginIntent);
+            }
+        });
     }
 }
 
