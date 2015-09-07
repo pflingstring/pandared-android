@@ -1,13 +1,13 @@
-package my.fancyapp;
+package red.panda;
 
-import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.view.View;
-import android.widget.Button;
+import android.content.SharedPreferences;
 import android.widget.TextView;
 import android.content.Intent;
 import android.app.Activity;
+import android.view.View;
 import android.os.Bundle;
+
 
 public class MainActivity extends Activity
 {

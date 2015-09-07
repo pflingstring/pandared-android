@@ -1,4 +1,4 @@
-package my.fancyapp.utils;
+package red.panda.utils;
 
 import com.android.volley.toolbox.Volley;
 import com.android.volley.RequestQueue;

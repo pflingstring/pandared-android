@@ -1,7 +1,7 @@
-package my.fancyapp;
+package red.panda;
 
-import my.fancyapp.utils.RequestQueueSingleton;
-import my.fancyapp.requests.AuthRequest;
+import red.panda.utils.RequestQueueSingleton;
+import red.panda.requests.AuthRequest;
 
 import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
@@ -21,8 +21,8 @@ import org.json.JSONObject;
 public class LoginActivity extends Activity
 {
     RequestQueue queue;
-    public final static String AUTH_TOKEN   = "my.fancy.app.AUTH_TOKEN";
-    public final static String USER_DETAILS = "my.fancy.app.USER_DETAILS";
+    public final static String AUTH_TOKEN   = "red.panda.AUTH_TOKEN";
+    public final static String USER_DETAILS = "red.panda.USER_DETAILS";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)

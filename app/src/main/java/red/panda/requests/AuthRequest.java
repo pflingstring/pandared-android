@@ -1,4 +1,4 @@
-package my.fancyapp.requests;
+package red.panda.requests;
 
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.HttpHeaderParser;
