@@ -16,6 +16,7 @@
 
         android:id="@+id/logout"
         android:text="@string/logout"
+        android:onClick="logoutButton"
         />
 
 

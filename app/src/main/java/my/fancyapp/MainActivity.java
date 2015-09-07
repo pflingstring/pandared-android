@@ -21,22 +21,17 @@ public class MainActivity extends Activity
         String userDetails = intent.getStringExtra(LoginActivity.USER_DETAILS);
         TextView userDetailsView = (TextView) findViewById(R.id.userDetails);
         userDetailsView.setText(userDetails);
+    }
 
-        Button logoutBtn = (Button) findViewById(R.id.logout);
-        logoutBtn.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View view)
-            {
-                SharedPreferences preferences = PreferenceManager
-                        .getDefaultSharedPreferences(getApplicationContext());
-                SharedPreferences.Editor editor = preferences.edit();
-                editor.clear();
-                editor.apply();
-                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(loginIntent);
-            }
-        });
+    public void logoutButton(View view)
+    {
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+        Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+        startActivity(loginIntent);
     }
 }
 

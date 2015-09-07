@@ -1,6 +1,8 @@
 package my.fancyapp;
 
+import my.fancyapp.utils.RequestQueueSingleton;
 import my.fancyapp.requests.AuthRequest;
+
 import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
 import android.widget.EditText;
@@ -9,7 +11,6 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.android.volley.toolbox.Volley;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.Response;
@@ -19,7 +20,7 @@ import org.json.JSONObject;
 
 public class LoginActivity extends Activity
 {
-    RequestQueue queue; // TODO: make the queue a singleton
+    RequestQueue queue;
     public final static String AUTH_TOKEN   = "my.fancy.app.AUTH_TOKEN";
     public final static String USER_DETAILS = "my.fancy.app.USER_DETAILS";
 
@@ -27,7 +28,8 @@ public class LoginActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        queue = Volley.newRequestQueue(this);
+        queue = RequestQueueSingleton.getInstance(getApplicationContext())
+                .getRequestQueue();
 
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
@@ -52,6 +54,16 @@ public class LoginActivity extends Activity
         String password = passwordEditText.getText().toString();
 
         makeAuthRequest(username, password);
+    }
+
+    public void logoutButton(View view)
+    {
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+        setContentView(R.layout.activity_login);
     }
 
     void makeAuthRequest(String username, String password)
@@ -86,6 +98,6 @@ public class LoginActivity extends Activity
         String loginData = "{\"username\" : \""   + username + // refactor
                            "\", \"password\": \"" + password + "\"}";
         AuthRequest authRequest = new AuthRequest(loginData, resListener, errListener);
-        queue.add(authRequest);
+        RequestQueueSingleton.getInstance(getApplicationContext()).addToQueue(authRequest);
     }
 }
