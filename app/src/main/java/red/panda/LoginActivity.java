@@ -3,8 +3,10 @@ package red.panda;
 import red.panda.utils.RequestQueueSingleton;
 import red.panda.requests.AuthRequest;
 
+import android.content.Context;
 import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
+import android.view.Gravity;
 import android.widget.EditText;
 import android.content.Intent;
 import android.app.Activity;
@@ -16,6 +18,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.Response;
 
 import android.widget.TextView;
+import android.widget.Toast;
+
 import org.json.JSONObject;
 
 public class LoginActivity extends Activity
@@ -91,7 +95,12 @@ public class LoginActivity extends Activity
             @Override
             public void onErrorResponse(VolleyError error)
             {
-            // TODO: handle error
+                int length = Toast.LENGTH_SHORT;
+                Context context = getApplicationContext();
+                String errorStr = "Login or password incorrect. Try again";
+                Toast loginErrorToast = Toast.makeText(context, errorStr, length);
+                loginErrorToast.setGravity(Gravity.CENTER_VERTICAL, 0, 0);
+                loginErrorToast.show();
             }
         };
 
