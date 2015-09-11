@@ -20,6 +20,7 @@ import com.android.volley.Response;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class LoginActivity extends Activity
@@ -104,9 +105,17 @@ public class LoginActivity extends Activity
             }
         };
 
-        String loginData = "{\"username\" : \""   + username + // refactor
-                           "\", \"password\": \"" + password + "\"}";
-        AuthRequest authRequest = new AuthRequest(loginData, resListener, errListener);
+        JSONObject loginData = new JSONObject();
+        try
+        {
+            loginData.put("username", username);
+            loginData.put("password", password);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+        AuthRequest authRequest = new AuthRequest(loginData.toString(), resListener, errListener);
         RequestQueueSingleton.addToQueue(authRequest, this);
     }
 }

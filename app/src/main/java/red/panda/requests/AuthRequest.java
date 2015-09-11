@@ -53,9 +53,10 @@ public class AuthRequest extends JsonObjectRequest
         }
         catch (JSONException exception)
         {
+
             Log.w("GET AUTH_TOKEN", exception.toString());
+            return null;
         }
-        return null;
     }
 
     public static String getUserDetails(JSONObject response)
@@ -67,8 +68,8 @@ public class AuthRequest extends JsonObjectRequest
         catch (JSONException exception)
         {
             Log.w("JSON_USER_DETAILS_ERROR", exception.toString());
+            return null;
         }
-        return null;
     }
 
 }
