@@ -19,5 +19,14 @@
         android:onClick="logoutButton"
         />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:id="@+id/conversation"
+        android:text="@string/conversation"
+        android:onClick="conversationButton"
+        />
+
 
 </LinearLayout>

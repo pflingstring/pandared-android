@@ -36,7 +36,7 @@ public class LoginActivity extends Activity
         queue = RequestQueueSingleton.getQueue(this);
 
         SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(this);
+                .getDefaultSharedPreferences(getApplicationContext());
         String userDetails = sharedPreferences.getString(USER_DETAILS, null);
         String authToken   = sharedPreferences.getString(AUTH_TOKEN, null);
 
@@ -58,6 +58,12 @@ public class LoginActivity extends Activity
         String password = passwordEditText.getText().toString();
 
         makeAuthRequest(username, password);
+    }
+
+    public void conversationButton(View view)
+    {
+        Intent intent = new Intent(this, ConversationActivity.class);
+        startActivity(intent);
     }
 
     public void logoutButton(View view)

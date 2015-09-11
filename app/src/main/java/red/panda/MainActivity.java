@@ -34,5 +34,11 @@ public class MainActivity extends Activity
         startActivity(loginIntent);
         finish();
     }
+
+    public void conversationButton(View view)
+    {
+        Intent intent = new Intent(this, ConversationActivity.class);
+        startActivity(intent);
+    }
 }
 
