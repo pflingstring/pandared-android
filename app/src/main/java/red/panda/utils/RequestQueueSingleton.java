@@ -34,8 +34,21 @@ public class RequestQueueSingleton
         return requestQueue;
     }
 
-    public <T> void addToQueue(Request<T> req) {
+    public static RequestQueue getQueue(Context context)
+    {
+        return RequestQueueSingleton.getInstance(context).getRequestQueue();
+    }
+
+    public <T> void addRequestToQueue(Request<T> req) {
         getRequestQueue().add(req);
     }
+
+    public static <T> void addToQueue(Request<T> req, Context context)
+    {
+        RequestQueueSingleton.getInstance(context).addRequestToQueue(req);
+    }
+
+
+
 
 }

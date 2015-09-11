@@ -28,8 +28,7 @@ public class LoginActivity extends Activity
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        queue = RequestQueueSingleton.getInstance(getApplicationContext())
-                .getRequestQueue();
+        queue = RequestQueueSingleton.getQueue(this);
 
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
@@ -99,6 +98,6 @@ public class LoginActivity extends Activity
         String loginData = "{\"username\" : \""   + username + // refactor
                            "\", \"password\": \"" + password + "\"}";
         AuthRequest authRequest = new AuthRequest(loginData, resListener, errListener);
-        RequestQueueSingleton.getInstance(getApplicationContext()).addToQueue(authRequest);
+        RequestQueueSingleton.addToQueue(authRequest, this);
     }
 }
