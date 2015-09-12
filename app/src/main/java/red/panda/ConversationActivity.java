@@ -2,29 +2,20 @@ package red.panda;
 
 import red.panda.requests.ConversationRequest;
 import red.panda.utils.RequestQueueSingleton;
-import android.preference.PreferenceManager;
-import android.content.SharedPreferences;
-import android.content.Context;
+import red.panda.utils.ConversationUtils;
 
-import com.android.volley.AuthFailureError;
+import android.content.Context;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.Response;
 
+import android.support.annotation.Nullable;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class ConversationActivity extends Activity
 {
@@ -44,33 +35,9 @@ public class ConversationActivity extends Activity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                Toast toast = Toast.makeText(getApplicationContext(), "you clicked me HAHA lol", Toast.LENGTH_SHORT);
-                toast.show();
+
             }
         });
-        makePMRequest("");
-    }
-
-    void makePMRequest(String id)
-    {
-        Response.Listener<String> resListener = new Response.Listener<String>()
-        {
-            @Override
-            public void onResponse(String response)
-            {
-                try
-                {
-                    String[] ids = getConversationIDs(response);
-                    ArrayAdapter<String> idAdapter = new ArrayAdapter<String>(
-                            getApplicationContext(), android.R.layout.simple_list_item_1, ids);
-                    listView.setAdapter(idAdapter);
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        };
 
         final Response.ErrorListener errListener = new Response.ErrorListener()
         {
@@ -84,35 +51,34 @@ public class ConversationActivity extends Activity
             }
         };
 
-        ConversationRequest request = new ConversationRequest(resListener, errListener)
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError
-            {
-                Map<String, String> headers = new HashMap<>();
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
-                        getApplicationContext());
-                String authToken = preferences.getString(LoginActivity.AUTH_TOKEN, null);
-                headers.put("Authorization", authToken);
-                return headers;
-            }
-        };
-        RequestQueueSingleton.addToQueue(request, this);
+        Response.Listener<String> resListener = createResponse(null);
+
+        ConversationRequest conversationRequest = ConversationUtils
+                .requestConversationIDs(resListener, errListener, this);
+        RequestQueueSingleton.addToQueue(conversationRequest, this);
     }
 
-    static String[] getConversationIDs(String jsonResponse) throws JSONException
+    Response.Listener<String> createResponse(@Nullable String id)
     {
-        JSONArray jsonArray = new JSONObject(jsonResponse).getJSONArray("data");
-        int length = jsonArray.length();
-        String[] result = new String[length];
+        if (id == null)
+            // get all conversation's IDs
+            return new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response)
+                {
+                    ConversationUtils.populateViewsWithPM(
+                            response, listView, getApplicationContext());
+                }};
+        else
+            return new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response)
+                {
 
-        for (int i=0; i<length; i++)
-        {
-            JSONObject jsonObj = jsonArray.getJSONObject(i);
-            String id = jsonObj.getString("id");
-            result[i] = id;
-        }
-        return result;
+                }};
     }
+
+
+
 
 }

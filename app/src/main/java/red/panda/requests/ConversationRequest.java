@@ -9,7 +9,7 @@ public class ConversationRequest extends StringRequest
     public static final String URL = "https://api.panda.red/pm/";
 
     /**
-     * Get JSON array of available PM IDs
+     * Get all available PM IDs
      * @param resListener success listener
      * @param errorListener error listener
      */
@@ -28,4 +28,5 @@ public class ConversationRequest extends StringRequest
     {
         super(URL+id, resListener, errorListener);
     }
+
 }
