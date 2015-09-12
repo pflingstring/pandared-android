@@ -5,12 +5,15 @@
               android:paddingRight="16dp"
               android:orientation="vertical" >
 
-    <TextView
-        android:layout_width="wrap_content"
+    <ListView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        
-        android:id="@+id/pm"
-        />
+
+        android:id="@+id/pmIDList"
+        >
+
+
+    </ListView>
 
 
 </LinearLayout>
