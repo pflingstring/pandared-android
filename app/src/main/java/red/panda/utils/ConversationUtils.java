@@ -64,6 +64,7 @@ public class ConversationUtils
             String[] ids = extractPmIds(response);
             ArrayAdapter<String> idAdapter = new ArrayAdapter<>(
                     context, android.R.layout.simple_list_item_1, ids);
+
             listView.setAdapter(idAdapter);
         }
         catch (JSONException e)
