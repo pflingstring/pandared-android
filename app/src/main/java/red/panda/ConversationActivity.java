@@ -4,17 +4,13 @@ import red.panda.requests.ConversationRequest;
 import red.panda.utils.RequestQueueSingleton;
 import red.panda.utils.ConversationUtils;
 
-import android.content.Context;
 import com.android.volley.RequestQueue;
-import com.android.volley.VolleyError;
 import com.android.volley.Response;
 
-import android.content.Intent;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.content.Intent;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
@@ -38,40 +34,21 @@ public class ConversationActivity extends Activity
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 String myID = (String) parent.getItemAtPosition(position);
+                Response.ErrorListener errorListener = ConversationUtils.
+                        createErrorListener(getApplicationContext(), "Error while retrieving this conversation");
+                ConversationRequest request = ConversationUtils.
+                        requestConversationByID(myID, createResponse(myID), errorListener, getApplicationContext());
 
-                final Response.ErrorListener errListener = new Response.ErrorListener()
-                {
-                    @Override
-                    public void onErrorResponse(VolleyError error)
-                    {
-                        int length = Toast.LENGTH_SHORT;
-                        Context context = getApplicationContext();
-                        Toast loginErrorToast = Toast.makeText(context, error.toString(), length);
-                        loginErrorToast.show();
-                    }
-                };
-
-                ConversationRequest request = ConversationUtils.requestConversationByID(myID, createResponse(myID), errListener, getApplicationContext());
                 RequestQueueSingleton.addToQueue(request, getApplicationContext());
             }
         });
 
-        final Response.ErrorListener errListener = new Response.ErrorListener()
-        {
-            @Override
-            public void onErrorResponse(VolleyError error)
-            {
-                int length = Toast.LENGTH_SHORT;
-                Context context = getApplicationContext();
-                Toast loginErrorToast = Toast.makeText(context, error.toString(), length);
-                loginErrorToast.show();
-            }
-        };
-
+        Response.ErrorListener errListener = ConversationUtils.
+                createErrorListener(this, "Error while loading conversation list");
         Response.Listener<String> resListener = createResponse(null);
-
         ConversationRequest conversationRequest = ConversationUtils
                 .requestConversationIDs(resListener, errListener, this);
+
         RequestQueueSingleton.addToQueue(conversationRequest, this);
     }
 
@@ -87,6 +64,7 @@ public class ConversationActivity extends Activity
                             response, listView, getApplicationContext());
                 }};
         else
+            // load messages by ID in new Activity
             return new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response)
@@ -96,8 +74,5 @@ public class ConversationActivity extends Activity
                     startActivity(intent);
                 }};
     }
-
-
-
 
 }

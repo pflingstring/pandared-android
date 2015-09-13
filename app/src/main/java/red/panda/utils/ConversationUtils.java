@@ -6,13 +6,15 @@ import red.panda.LoginActivity;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.AuthFailureError;
+import com.android.volley.VolleyError;
 
 import android.preference.PreferenceManager;
-import android.content.SharedPreferences;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.content.Context;
+import android.widget.Toast;
 
+import android.content.SharedPreferences;
+import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -86,6 +88,22 @@ public class ConversationUtils
             result[i] = id;
         }
         return result;
+    }
+
+    public static ErrorListener createErrorListener(final Context context, final String message)
+    {
+        return new ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error)
+            {
+                createToast(context, message);
+            }};
+    }
+
+    public static Toast createToast(final Context context, String message)
+    {
+        int length = Toast.LENGTH_SHORT;
+        return Toast.makeText(context, message, length);
     }
 
 }
