@@ -160,7 +160,7 @@ public class ConversationUtils
     {
         try
         {
-            JSONObject jsonObject = new JSONObject(Constants.USER_DETAILS);
+            JSONObject jsonObject = new JSONObject(Constants.User.USER_DETAILS);
             String myID = jsonObject.getString("id");
             return myID.equals(id);
         }

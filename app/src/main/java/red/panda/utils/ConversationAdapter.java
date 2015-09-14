@@ -99,7 +99,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         try
         {
             currentID = jsonObject.getString("authorId");
-            myID = new JSONObject(Constants.USER_DETAILS).getString("id");
+            myID = new JSONObject(Constants.User.USER_DETAILS).getString("id");
         }
         catch (JSONException e)
         {

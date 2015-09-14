@@ -40,12 +40,12 @@ public class LoginActivity extends Activity
                 .getDefaultSharedPreferences(getApplicationContext());
         String userDetails = sharedPreferences.getString(USER_DETAILS, null);
         String authToken   = sharedPreferences.getString(AUTH_TOKEN, null);
+        new Constants();
+        Constants.User.AUTH_TOKEN = authToken;
+        Constants.User.USER_DETAILS = userDetails;
 
         if (authToken != null)
         {
-            Constants.AUTH_TOKEN = authToken;
-            Constants.USER_DETAILS = userDetails;
-
             setContentView(R.layout.activity_main);
             TextView userDetailsView = (TextView) findViewById(R.id.userDetails);
             userDetailsView.setText(userDetails);
@@ -90,8 +90,14 @@ public class LoginActivity extends Activity
                 SharedPreferences sharedPreferences = PreferenceManager
                         .getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(AUTH_TOKEN, AuthRequest.getFieldFromJSON(response, "AUTH_TOKEN"));
-                editor.putString(USER_DETAILS, AuthRequest.getUserDetails(response));
+
+                String authToken = AuthRequest.getFieldFromJSON(response, "AUTH_TOKEN");
+                String userDetails = AuthRequest.getUserDetails(response);
+                Constants.User.AUTH_TOKEN = authToken;
+                Constants.User.USER_DETAILS = userDetails;
+
+                editor.putString(AUTH_TOKEN, authToken);
+                editor.putString(USER_DETAILS, userDetails);
                 editor.apply();
 
                 Intent mainPage = new Intent(getApplicationContext(), MainActivity.class);
