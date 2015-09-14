@@ -2,6 +2,7 @@ package red.panda.utils;
 
 import red.panda.requests.ConversationRequest;
 import red.panda.DisplayConversationActivity;
+import red.panda.ConversationActivity;
 import red.panda.LoginActivity;
 
 import com.android.volley.Response.ErrorListener;
@@ -131,7 +132,7 @@ public class ConversationUtils
                 {
                     Intent intent = new Intent(context, DisplayConversationActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("PM", response);
+                    intent.putExtra(ConversationActivity.MESSAGES, response);
                     context.startActivity(intent);
                 }};
     }
@@ -155,5 +156,19 @@ public class ConversationUtils
         RequestQueueSingleton.addToQueue(request, context);
     }
 
+    public static boolean authorIsMe(String id)
+    {
+        try
+        {
+            JSONObject jsonObject = new JSONObject(Constants.USER_DETAILS);
+            String myID = jsonObject.getString("id");
+            return myID.equals(id);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
 

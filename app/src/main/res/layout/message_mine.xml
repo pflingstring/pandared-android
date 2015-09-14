@@ -5,19 +5,21 @@
     android:orientation="horizontal"
     >
 
-    <ImageView
+    <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-
-        android:id="@+id/avatar"
-        android:src="@drawable/avatar"
-    />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:gravity="right"
         android:id="@+id/message_text"
     />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:id="@+id/avatar"
+        android:src="@drawable/avatar_my"
+    />
+
 
 </LinearLayout>

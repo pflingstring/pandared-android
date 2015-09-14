@@ -7,13 +7,15 @@ import android.widget.TextView;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.View;
-import red.panda.R;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import red.panda.R;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder>
 {
-    private String[] dataSet;
-    public ConversationAdapter(String[] myData)
+    private JSONObject[] dataSet;
+    public ConversationAdapter(JSONObject[] myData)
     {
         dataSet = myData;
     }
@@ -43,16 +45,46 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
+        int layout = -1;
+        switch (viewType)
+        {
+            case Constants.AUTHOR_IS_ME :
+                layout = R.layout.message_mine;
+                break;
+            case Constants.AUTHOR_IS_NOT_ME :
+                layout = R.layout.message_yours;
+                break;
+        }
+
         View v = LayoutInflater
                 .from(parent.getContext())
-                .inflate(R.layout.message_item, parent, false);
+                .inflate(layout, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position) {
-        viewHolder.setAvatar(R.drawable.avatar);
-        viewHolder.setMessage(dataSet[position]);
+        JSONObject jsonObject = dataSet[position];
+        String id, message;
+        try
+        {
+            id = jsonObject.getString("authorId");
+            message = jsonObject.getString("msg");
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+            message = null;
+            id = null;
+        }
+
+        boolean authorIsMe = ConversationUtils.authorIsMe(id);
+        if (authorIsMe)
+            viewHolder.setAvatar(R.drawable.avatar_my);
+        else
+            viewHolder.setAvatar(R.drawable.avatar_yours);
+
+        viewHolder.setMessage(message);
     }
 
     @Override
@@ -60,4 +92,24 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         return dataSet.length;
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        JSONObject jsonObject = dataSet[position];
+        String currentID, myID;
+        try
+        {
+            currentID = jsonObject.getString("authorId");
+            myID = new JSONObject(Constants.USER_DETAILS).getString("id");
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+            return -1;
+        }
+
+        if (currentID.equals(myID))
+            return Constants.AUTHOR_IS_ME;
+        else
+            return Constants.AUTHOR_IS_NOT_ME;
+    }
 }

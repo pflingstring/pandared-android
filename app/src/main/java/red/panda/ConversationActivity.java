@@ -9,6 +9,7 @@ import android.view.View;
 
 public class ConversationActivity extends Activity
 {
+    public final static String MESSAGES = "red.panda.MESSAGES";
     ListView listView;
 
     @Override

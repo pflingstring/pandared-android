@@ -5,14 +5,17 @@ import android.support.v7.widget.RecyclerView;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.ViewGroup;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import red.panda.utils.ConversationAdapter;
 import red.panda.utils.ConversationUtils;
 
 public class DisplayConversationActivity extends Activity
 {
-    RecyclerView messages;
+    RecyclerView messagesView;
     RecyclerView.Adapter adapter;
     RecyclerView.LayoutManager layoutManager;
 
@@ -23,16 +26,35 @@ public class DisplayConversationActivity extends Activity
         setContentView(R.layout.activity_display_conversation);
 
         Intent intent = getIntent();
-        String pm = intent.getStringExtra("PM");
-        String[] input = ConversationUtils.extractFieldsFromJSONArray(pm, "msg");
+        String allMessages = intent.getStringExtra(ConversationActivity.MESSAGES);
 
-        messages = (RecyclerView) findViewById(R.id.messages);
+        JSONObject[] input;
+        try
+        {
+            JSONArray jsonArray = new JSONObject(allMessages).getJSONArray("data");
+            int length = jsonArray.length();
+            input = new JSONObject[length];
+
+            for (int i=0; i<length; i++)
+                input[i] = jsonArray.getJSONObject(i);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+            input = null;
+        }
+
+        messagesView = (RecyclerView) findViewById(R.id.messages);
 
         layoutManager = new LinearLayoutManager(this);
-        messages.setLayoutManager(layoutManager);
+        messagesView.setLayoutManager(layoutManager);
 
-        adapter = new ConversationAdapter(input);
-        messages.setAdapter(adapter);
+        if (input != null)
+        {
+            adapter = new ConversationAdapter(input);
+            messagesView.setAdapter(adapter);
+        }
+
     }
 
 }
