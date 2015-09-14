@@ -27,7 +27,7 @@ import java.util.Map;
 
 public class ConversationUtils
 {
-    public static ConversationRequest requestConversationIDs(
+    public static ConversationRequest requestConversations(
             Listener<String> resListener, ErrorListener errListener, final Context context)
     {
         return new ConversationRequest(resListener, errListener)
@@ -143,16 +143,17 @@ public class ConversationUtils
         ConversationRequest request;
 
         if (id == null)
+        {
             resListener = createResponse(context, null, listView);
+            request = requestConversations(resListener, errListener, context);
+        }
         else
+        {
             resListener = createResponse(context, id, listView);
-
-        if (id == null)
-            request = requestConversationIDs(resListener, errListener, context);
-        else
             request = requestConversationByID(id, resListener, errListener, context);
-
+        }
         RequestQueueSingleton.addToQueue(request, context);
     }
 
 }
+

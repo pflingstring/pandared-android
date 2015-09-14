@@ -13,7 +13,7 @@
     <string name="conversation">Conversation</string>
     <string name="title_activity_display_conversation">DisplayConversationActivity</string>
 
-    <string name="hello_world">Hello world!</string>
-
+    <!--DisplayConversation-->
+    <string name="send">Send</string>
 
 </resources>

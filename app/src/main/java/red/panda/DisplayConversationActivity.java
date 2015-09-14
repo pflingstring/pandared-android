@@ -1,16 +1,20 @@
 package red.panda;
 
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.ViewGroup;
 
+import red.panda.utils.ConversationAdapter;
+import red.panda.utils.ConversationUtils;
 
 public class DisplayConversationActivity extends Activity
 {
+    RecyclerView messages;
+    RecyclerView.Adapter adapter;
+    RecyclerView.LayoutManager layoutManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -18,15 +22,17 @@ public class DisplayConversationActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_conversation);
 
-        TextView view = (TextView) findViewById(R.id.singlePM);
-
         Intent intent = getIntent();
         String pm = intent.getStringExtra("PM");
-        view.setText(pm);
+        String[] input = ConversationUtils.extractFieldsFromJSONArray(pm, "msg");
 
+        messages = (RecyclerView) findViewById(R.id.messages);
 
+        layoutManager = new LinearLayoutManager(this);
+        messages.setLayoutManager(layoutManager);
+
+        adapter = new ConversationAdapter(input);
+        messages.setAdapter(adapter);
     }
-
-
 
 }

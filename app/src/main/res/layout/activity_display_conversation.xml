@@ -1,19 +1,41 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
+              xmlns:tools="http://schemas.android.com/tools"
               android:paddingLeft="16dp"
               android:paddingRight="16dp"
-              android:orientation="vertical" >
+              android:orientation="vertical"
+              tools:context=".DisplayConversationActivity"
+    >
 
-    <TextView
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/messages"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"
+
+    />
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
 
-        android:id="@+id/singlePM"
+        <EditText
+            android:id="@+id/message_input"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
         />
+        <Button
+            android:id="@+id/send_button"
+            android:text="@string/send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
 
-
-
-
+        />
+    </LinearLayout>
 
 </LinearLayout>
