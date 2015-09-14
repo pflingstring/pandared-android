@@ -1,5 +1,6 @@
 package red.panda;
 
+import red.panda.utils.Constants;
 import red.panda.utils.RequestQueueSingleton;
 import red.panda.requests.AuthRequest;
 
@@ -42,6 +43,9 @@ public class LoginActivity extends Activity
 
         if (authToken != null)
         {
+            Constants.AUTH_TOKEN = authToken;
+            Constants.USER_DETAILS = userDetails;
+
             setContentView(R.layout.activity_main);
             TextView userDetailsView = (TextView) findViewById(R.id.userDetails);
             userDetailsView.setText(userDetails);
@@ -86,7 +90,7 @@ public class LoginActivity extends Activity
                 SharedPreferences sharedPreferences = PreferenceManager
                         .getDefaultSharedPreferences(getApplicationContext());
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(AUTH_TOKEN, AuthRequest.getAuthToken(response));
+                editor.putString(AUTH_TOKEN, AuthRequest.getFieldFromJSON(response, "AUTH_TOKEN"));
                 editor.putString(USER_DETAILS, AuthRequest.getUserDetails(response));
                 editor.apply();
 

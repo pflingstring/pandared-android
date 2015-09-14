@@ -45,16 +45,15 @@ public class AuthRequest extends JsonObjectRequest
         }
     }
 
-    public static String getAuthToken(JSONObject response)
+    public static String getFieldFromJSON(JSONObject response, String field)
     {
         try
         {
-            return response.getString("AUTH_TOKEN");
+            return response.getString(field);
         }
-        catch (JSONException exception)
+        catch (JSONException e)
         {
-
-            Log.w("GET AUTH_TOKEN", exception.toString());
+            e.printStackTrace();
             return null;
         }
     }
