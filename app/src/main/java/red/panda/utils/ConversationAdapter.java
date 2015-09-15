@@ -48,10 +48,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         int layout = -1;
         switch (viewType)
         {
-            case Constants.AUTHOR_IS_ME :
+            case Constants.Conversation.AUTHOR_IS_ME:
                 layout = R.layout.message_mine;
                 break;
-            case Constants.AUTHOR_IS_NOT_ME :
+            case Constants.Conversation.AUTHOR_IS_NOT_ME:
                 layout = R.layout.message_yours;
                 break;
         }
@@ -63,37 +63,55 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(ViewHolder viewHolder, int position)
+    {
         JSONObject jsonObject = dataSet[position];
-        String id, message;
+        String id, message, previousID;
+
         try
         {
             id = jsonObject.getString("authorId");
             message = jsonObject.getString("msg");
+            boolean authorIsMe = ConversationUtils.authorIsMe(id);
+
+            if (position != 0 && position != getItemCount())
+            {
+                previousID = dataSet[position - 1].getString("authorId");
+                boolean previousAuthorIsTheSame = id.equals(previousID);
+
+                if (!previousAuthorIsTheSame)
+                    setAvatar(authorIsMe, viewHolder);
+            }
+            else
+            {
+                setAvatar(authorIsMe, viewHolder);
+            }
+
+            viewHolder.setMessage(message);
         }
         catch (JSONException e)
         {
             e.printStackTrace();
-            message = null;
-            id = null;
         }
+    }
 
-        boolean authorIsMe = ConversationUtils.authorIsMe(id);
+    public void setAvatar(boolean authorIsMe, ViewHolder viewHolder)
+    {
         if (authorIsMe)
             viewHolder.setAvatar(R.drawable.avatar_my);
         else
             viewHolder.setAvatar(R.drawable.avatar_yours);
-
-        viewHolder.setMessage(message);
     }
 
     @Override
-    public int getItemCount() {
+    public int getItemCount()
+    {
         return dataSet.length;
     }
 
     @Override
-    public int getItemViewType(int position) {
+    public int getItemViewType(int position)
+    {
         JSONObject jsonObject = dataSet[position];
         String currentID, myID;
         try
@@ -108,8 +126,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         }
 
         if (currentID.equals(myID))
-            return Constants.AUTHOR_IS_ME;
+            return Constants.Conversation.AUTHOR_IS_ME;
         else
-            return Constants.AUTHOR_IS_NOT_ME;
+            return Constants.Conversation.AUTHOR_IS_NOT_ME;
     }
 }

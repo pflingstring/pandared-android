@@ -3,20 +3,23 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:background="@color/material_blue_grey_950"
     >
 
     <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:id="@+id/avatar"
+        />
+
+    <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-
-        android:id="@+id/avatar"
-        android:src="@drawable/avatar_yours"
-    />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:background="@color/material_blue_grey_800"
         android:id="@+id/message_text"
     />
 
