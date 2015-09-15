@@ -7,6 +7,7 @@ import com.android.volley.Response.Listener;
 public class ConversationRequest extends StringRequest
 {
     public static final String URL = "https://api.panda.red/pm/";
+    // TODO : add join as parameter to constructor
 
     /**
      * Get all available PM IDs
@@ -15,7 +16,7 @@ public class ConversationRequest extends StringRequest
      */
     public ConversationRequest(Listener<String> resListener, ErrorListener errorListener)
     {
-        super(URL, resListener, errorListener);
+        super(URL + "?join=author,to", resListener, errorListener);
     }
 
     /**

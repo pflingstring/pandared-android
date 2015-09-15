@@ -10,17 +10,15 @@ import com.android.volley.Response.Listener;
 import com.android.volley.AuthFailureError;
 import com.android.volley.VolleyError;
 
+import android.support.v7.widget.RecyclerView;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import android.content.SharedPreferences;
 import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONArray;
 
 import android.content.Intent;
 import java.util.HashMap;
@@ -63,40 +61,14 @@ public class ConversationUtils
         };
     }
 
-    public static void populateViews(String jsonData, String field, @Nullable ListView listView, Context context)
+    static void populateViews(String input, Context context, RecyclerView view)
     {
-            String[] fields = extractFieldsFromJSONArray(jsonData, field);
-            ArrayAdapter<String> idAdapter = new ArrayAdapter<>(
-                    context, android.R.layout.simple_list_item_1, fields);
-
-            if (listView != null)
-                listView.setAdapter(idAdapter);
+        RecyclerView.Adapter adapter;
+        JSONObject[] dataSet = JsonUtils.toArrayOfJSON(input);
+        adapter = new ConversationPeopleAdapter(dataSet);
+        view.setAdapter(adapter);
     }
 
-    public static String[] extractFieldsFromJSONArray(String jsonResponse, String field)
-    {
-        JSONArray jsonArray;
-        String[] result;
-        try
-        {
-            jsonArray = new JSONObject(jsonResponse).getJSONArray("data");
-            int length = jsonArray.length();
-            result = new String[length];
-
-            for (int i=0; i<length; i++)
-            {
-                JSONObject jsonObj = jsonArray.getJSONObject(i);
-                String id = jsonObj.getString(field);
-                result[i] = id;
-            }
-            return result;
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-            return null;
-        }
-    }
 
     public static ErrorListener createErrorListener(final Context context, final String message)
     {
@@ -114,7 +86,8 @@ public class ConversationUtils
         return Toast.makeText(context, message, length);
     }
 
-    static Listener<String> createResponse(final Context context, @Nullable String id, final ListView listView)
+    static Listener<String> createResponse(final Context context, @Nullable String id,
+               final RecyclerView view)
     {
         if (id == null)
             // get all conversation's IDs
@@ -122,7 +95,7 @@ public class ConversationUtils
                 @Override
                 public void onResponse(String response)
                 {
-                    populateViews(response, "id", listView, context);
+                    populateViews(response, context, view);
                 }};
         else
             // load messages by ID in new Activity
@@ -137,20 +110,21 @@ public class ConversationUtils
                 }};
     }
 
-    public static void createRequest(@Nullable String id, Context context, @Nullable ListView listView, String error)
+    public static void createRequest(@Nullable String id, Context context, RecyclerView view)
+
     {
-        ErrorListener errListener = createErrorListener(context, error);
+        ErrorListener errListener = createErrorListener(context, "ConversationUtils error");
         Listener<String> resListener;
         ConversationRequest request;
 
         if (id == null)
         {
-            resListener = createResponse(context, null, listView);
+            resListener = createResponse(context, null, view);
             request = requestConversations(resListener, errListener, context);
         }
         else
         {
-            resListener = createResponse(context, id, listView);
+            resListener = createResponse(context, id, view);
             request = requestConversationByID(id, resListener, errListener, context);
         }
         RequestQueueSingleton.addToQueue(request, context);
