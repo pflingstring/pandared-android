@@ -7,6 +7,7 @@ import red.panda.requests.AuthRequest;
 import android.content.Context;
 import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
 import android.widget.EditText;
 import android.content.Intent;
@@ -24,7 +25,7 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class LoginActivity extends Activity
+public class LoginActivity extends AppCompatActivity
 {
     RequestQueue queue;
     public final static String AUTH_TOKEN   = "red.panda.AUTH_TOKEN";

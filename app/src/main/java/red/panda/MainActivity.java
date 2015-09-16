@@ -2,6 +2,7 @@ package red.panda;
 
 import android.preference.PreferenceManager;
 import android.content.SharedPreferences;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 import android.content.Intent;
 import android.app.Activity;
@@ -9,7 +10,7 @@ import android.view.View;
 import android.os.Bundle;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends AppCompatActivity
 {
     @Override
     public void onCreate(Bundle savedInstanceState)

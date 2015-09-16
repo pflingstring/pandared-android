@@ -6,6 +6,7 @@ import red.panda.utils.ItemClickSupport;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.app.Activity;
@@ -13,7 +14,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-public class ConversationActivity extends Activity
+public class ConversationActivity extends AppCompatActivity
 {
     public final static String MESSAGES = "red.panda.MESSAGES";
     RecyclerView.LayoutManager layoutManager;
