@@ -13,6 +13,7 @@ import com.android.volley.VolleyError;
 import android.support.v7.widget.RecyclerView;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.view.View;
 import android.widget.Toast;
 
 import android.content.SharedPreferences;
@@ -61,12 +62,22 @@ public class ConversationUtils
         };
     }
 
-    static void populateViews(String input, Context context, RecyclerView view)
+    static void populateViews(String input, final Context context, RecyclerView view)
     {
         RecyclerView.Adapter adapter;
-        JSONObject[] dataSet = JsonUtils.toArrayOfJSON(input);
+        final JSONObject[] dataSet = JsonUtils.toArrayOfJSON(input);
         adapter = new ConversationPeopleAdapter(dataSet);
         view.setAdapter(adapter);
+
+        ItemClickSupport.addTo(view).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+            @Override
+            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                JSONObject json = dataSet[position];
+                String id = JsonUtils.getFieldFromJSON(json, "id");
+
+                createRequest(id, context, null);
+            }
+        });
     }
 
 
@@ -110,7 +121,7 @@ public class ConversationUtils
                 }};
     }
 
-    public static void createRequest(@Nullable String id, Context context, RecyclerView view)
+    public static void createRequest(@Nullable String id, Context context, @Nullable RecyclerView view)
 
     {
         ErrorListener errListener = createErrorListener(context, "ConversationUtils error");

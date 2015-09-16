@@ -30,4 +30,18 @@ public class JsonUtils
         }
     }
 
+    public static String getFieldFromJSON(JSONObject from, String field)
+    {
+        try
+        {
+            return from.getString(field);
+        }
+        catch (JSONException e)
+        {
+            return null;
+        }
+    }
+
+
+
 }

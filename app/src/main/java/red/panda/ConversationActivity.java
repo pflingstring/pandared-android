@@ -1,24 +1,23 @@
 package red.panda;
 
-import red.panda.requests.ConversationRequest;
 import red.panda.utils.Constants;
 import red.panda.utils.ConversationUtils;
+import red.panda.utils.ItemClickSupport;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 public class ConversationActivity extends Activity
 {
     public final static String MESSAGES = "red.panda.MESSAGES";
     RecyclerView.LayoutManager layoutManager;
-    RecyclerView peopleView;
+    RecyclerView peopleListView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -26,9 +25,9 @@ public class ConversationActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
 
-        peopleView = (RecyclerView) findViewById(R.id.conversationPeople);
+        peopleListView = (RecyclerView) findViewById(R.id.conversationPeople);
         layoutManager = new LinearLayoutManager(this);
-        peopleView.setLayoutManager(layoutManager);
+        peopleListView.setLayoutManager(layoutManager);
 
         // TODO: initialize Constants on launch
         SharedPreferences sharedPreferences = PreferenceManager
@@ -39,7 +38,7 @@ public class ConversationActivity extends Activity
         Constants.User.AUTH_TOKEN = authToken;
         Constants.User.USER_DETAILS = userDetails;
 
-        ConversationUtils.createRequest(null, getApplicationContext(), peopleView);
+        ConversationUtils.createRequest(null, getApplicationContext(), peopleListView);
 
     }
 

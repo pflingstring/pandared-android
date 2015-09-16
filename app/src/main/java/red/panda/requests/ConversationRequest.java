@@ -16,7 +16,7 @@ public class ConversationRequest extends StringRequest
      */
     public ConversationRequest(Listener<String> resListener, ErrorListener errorListener)
     {
-        super(URL + "?join=author,to", resListener, errorListener);
+        super(URL + "?join=author,to&sort=+lastReplyOn", resListener, errorListener);
     }
 
     /**
