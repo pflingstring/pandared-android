@@ -1,9 +1,11 @@
 package red.panda;
 
+import red.panda.NavDrawer.FragmentDrawer;
 import red.panda.utils.RequestQueueSingleton;
 import red.panda.requests.AuthRequest;
 import red.panda.utils.Constants;
 
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import com.android.volley.VolleyError;
@@ -26,10 +28,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import android.os.Bundle;
 
-public class LoginActivity extends AppCompatActivity
+public class LoginActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener
 {
     public final static String AUTH_TOKEN   = "red.panda.AUTH_TOKEN";
     public final static String USER_DETAILS = "red.panda.USER_DETAILS";
+    private FragmentDrawer drawerFragment;
     Toolbar toolbar;
 
     @Override
@@ -59,6 +62,17 @@ public class LoginActivity extends AppCompatActivity
         {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        drawerFragment = (FragmentDrawer)
+                getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
+        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
+        drawerFragment.setDrawerListener(this);
+
+    }
+
+    @Override
+    public void onDrawerItemSelected(View view, int position) {
+
     }
 
     @Override
