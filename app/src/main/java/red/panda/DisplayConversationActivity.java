@@ -32,7 +32,7 @@ public class DisplayConversationActivity extends AppCompatActivity
         }
 
         Intent intent = getIntent();
-        String allMessages = intent.getStringExtra(ConversationActivity.MESSAGES);
+        String allMessages = intent.getStringExtra(ConversationFragment.MESSAGES);
         JSONObject[] input = JsonUtils.toArrayOfJSON(allMessages);
 
         messagesView = (RecyclerView) findViewById(R.id.messages);

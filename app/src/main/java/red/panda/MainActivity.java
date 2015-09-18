@@ -65,8 +65,8 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         switch (position)
         {
             case 0:
-                fragment = new HomeFragment();
-                title = getString(R.string.app_name);
+                fragment = new ConversationFragment();
+                title = getString(R.string.conversation);
                 break;
             default:
                 break;
@@ -79,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             fragmentTransaction.replace(R.id.container_body, fragment);
             fragmentTransaction.commit();
 
-            // set the toolbar title
             if (getSupportActionBar() != null)
                 getSupportActionBar().setTitle(title);
         }
@@ -121,12 +120,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void conversationButton(View view)
-    {
-        Intent intent = new Intent(this, ConversationActivity.class);
-        startActivity(intent);
     }
 
 }

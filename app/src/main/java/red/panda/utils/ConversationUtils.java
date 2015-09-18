@@ -1,9 +1,8 @@
 package red.panda.utils;
 
+import red.panda.ConversationFragment;
 import red.panda.requests.ConversationRequest;
 import red.panda.DisplayConversationActivity;
-import red.panda.ConversationActivity;
-import red.panda.LoginActivity;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -116,7 +115,7 @@ public class ConversationUtils
                 {
                     Intent intent = new Intent(context, DisplayConversationActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra(ConversationActivity.MESSAGES, response);
+                    intent.putExtra(ConversationFragment.MESSAGES, response);
                     context.startActivity(intent);
                 }};
     }

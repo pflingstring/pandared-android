@@ -9,11 +9,10 @@
     <string name="logout">Logout</string>
 
     <!--    Main-->
-    <string name="conversation">Conversation</string>
+    <string name="conversation">Conversations</string>
 
     <!--DisplayConversation-->
     <string name="send">Send</string>
-    <string name="title_activity_conversation">ConversationActivity</string>
     <string name="title_activity_display_conversation">DisplayConversationActivity</string>
 
     <!--Toolbar-->
@@ -21,14 +20,10 @@
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
 
-    <string name="nav_item_home">Home</string>
-    <string name="nav_item_friends">Friends</string>
-    <string name="nav_item_notifications">Messages</string>
+    <string name="nav_item_conversations">Conversations</string>
 
     <string-array name="nav_drawer_labels">
-        <item>@string/nav_item_home</item>
-        <item>@string/nav_item_friends</item>
-        <item>@string/nav_item_notifications</item>
+        <item>@string/nav_item_conversations</item>
     </string-array>
 
 </resources>

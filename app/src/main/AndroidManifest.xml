@@ -24,10 +24,6 @@
             android:label="@string/login" >
         </activity>
         <activity
-            android:name=".ConversationActivity"
-            android:label="@string/title_activity_conversation" >
-        </activity>
-        <activity
             android:name=".DisplayConversationActivity"
             android:label="@string/title_activity_display_conversation" >
         </activity>
