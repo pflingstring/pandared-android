@@ -7,12 +7,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.content.Intent;
-import android.app.Activity;
 import org.json.JSONObject;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 
 public class DisplayConversationActivity extends AppCompatActivity
 {
+    Toolbar toolbar;
     RecyclerView messagesView;
     RecyclerView.Adapter adapter;
     RecyclerView.LayoutManager layoutManager;
@@ -23,6 +24,12 @@ public class DisplayConversationActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display_conversation);
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         Intent intent = getIntent();
         String allMessages = intent.getStringExtra(ConversationActivity.MESSAGES);

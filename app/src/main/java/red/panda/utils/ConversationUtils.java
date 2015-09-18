@@ -38,7 +38,7 @@ public class ConversationUtils
             {
                 Map<String, String> headers = new HashMap<>();
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                String authToken = preferences.getString(LoginActivity.AUTH_TOKEN, null);
+                String authToken = preferences.getString(SharedPrefUtils.AUTH_TOKEN, null);
                 headers.put("Authorization", authToken);
                 return headers;
             }
@@ -55,7 +55,7 @@ public class ConversationUtils
             {
                 Map<String, String> headers = new HashMap<>();
                 SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                String authToken = preferences.getString(LoginActivity.AUTH_TOKEN, null);
+                String authToken = preferences.getString(SharedPrefUtils.AUTH_TOKEN, null);
                 headers.put("Authorization", authToken);
                 return headers;
             }

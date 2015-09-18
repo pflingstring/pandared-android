@@ -1,7 +1,9 @@
 package red.panda.utils;
 
-public class Constants {
+import android.content.Context;
 
+public class Constants
+{
     public Constants() {}
 
     public static class Conversation
@@ -16,5 +18,10 @@ public class Constants {
         public static String AUTH_TOKEN;
     }
 
+    public static void init(Context context)
+    {
+        new Constants();
+        User.AUTH_TOKEN = SharedPrefUtils.getAuthToken(context);
+        User.USER_DETAILS = SharedPrefUtils.getUserDetails(context);
+    }
 }
-
