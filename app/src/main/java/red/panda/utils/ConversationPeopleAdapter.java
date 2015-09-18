@@ -62,7 +62,7 @@ public class ConversationPeopleAdapter extends
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        int layout = R.layout.conversation_people;
+        int layout = R.layout.conversation_people_recycler;
 
         View v = LayoutInflater
                 .from(parent.getContext())

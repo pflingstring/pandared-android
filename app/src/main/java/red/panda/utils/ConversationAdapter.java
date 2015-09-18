@@ -49,10 +49,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         switch (viewType)
         {
             case Constants.Conversation.AUTHOR_IS_ME:
-                layout = R.layout.message_mine;
+                layout = R.layout.message_mine_recycler;
                 break;
             case Constants.Conversation.AUTHOR_IS_NOT_ME:
-                layout = R.layout.message_yours;
+                layout = R.layout.message_yours_recycler;
                 break;
         }
 
