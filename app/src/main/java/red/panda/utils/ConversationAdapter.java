@@ -22,18 +22,11 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
-        public ImageView avatar;
         public TextView messageView;
         public ViewHolder(View view)
         {
             super(view);
-            avatar = (ImageView) view.findViewById(R.id.avatar);
             messageView = (TextView) view.findViewById(R.id.message_text);
-        }
-
-        public void setAvatar(int id)
-        {
-            avatar.setImageResource(id);
         }
 
         public void setMessage(String message)
@@ -72,20 +65,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         {
             id = jsonObject.getString("authorId");
             message = jsonObject.getString("msg");
-            boolean authorIsMe = ConversationUtils.authorIsMe(id);
-
-            if (position != 0 && position != getItemCount())
-            {
-                previousID = dataSet[position - 1].getString("authorId");
-                boolean previousAuthorIsTheSame = id.equals(previousID);
-
-                if (!previousAuthorIsTheSame)
-                    setAvatar(authorIsMe, viewHolder);
-            }
-            else
-            {
-                setAvatar(authorIsMe, viewHolder);
-            }
 
             viewHolder.setMessage(message);
         }
@@ -93,14 +72,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         {
             e.printStackTrace();
         }
-    }
-
-    public void setAvatar(boolean authorIsMe, ViewHolder viewHolder)
-    {
-        if (authorIsMe)
-            viewHolder.setAvatar(R.drawable.avatar_my);
-        else
-            viewHolder.setAvatar(R.drawable.avatar_yours);
     }
 
     @Override

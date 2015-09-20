@@ -4,6 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="@color/windowBackground"
     tools:context="red.panda.HomeFragment">
 
 
@@ -14,18 +15,9 @@
         android:layout_alignParentTop="true"
         android:layout_marginTop="100dp"
         android:gravity="center_horizontal"
-        android:text="HOME"
+        android:text="welcome to panda.red"
         android:textSize="45dp"
         android:textStyle="bold"/>
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/label"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="10dp"
-        android:gravity="center_horizontal"
-        android:text="Edit fragment_home.xml to change the appearance"
-        android:textSize="12dp"/>
 
 </RelativeLayout>

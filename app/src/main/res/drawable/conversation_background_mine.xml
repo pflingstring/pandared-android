@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <stroke
+        android:width="0dp"
+        android:color="@color/material_blue_grey_950"/>
+    <corners
+        android:radius="5dp"/>
+    <padding
+        android:bottom="5dp"
+        android:left="3dp"
+        android:right="3dp"
+        android:top="5dp"
+        />
+    <gradient
+        android:angle="-90"
+        android:endColor="@color/msg_background_mine"
+        android:startColor="@color/msg_background_mine"/>
+</shape>

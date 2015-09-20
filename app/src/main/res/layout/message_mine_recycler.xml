@@ -3,25 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
+    android:paddingStart="50dp"
+    android:paddingBottom="1dp"
+    android:paddingTop="1dp"
+    android:paddingEnd="10dp"
     >
 
-    <TextView
+    <View
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_weight="1"
-        android:paddingTop="1dp"
-        android:paddingBottom="1dp"
-        android:gravity="right"
-        android:id="@+id/message_text"
-    />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="5dp"
-
-        android:id="@+id/avatar"
         />
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/message_text"
+        android:textColor="@color/abc_primary_text_material_light"
+        android:background="@drawable/conversation_background_mine"
+    />
 
 </LinearLayout>

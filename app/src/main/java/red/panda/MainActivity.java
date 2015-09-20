@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             Intent login = new Intent(this, LoginActivity.class);
             startActivity(login);
             finish();
+            return;
         }
         Constants.init(this);
 
@@ -45,9 +46,9 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // set conversationFragment as default view
+        // set HomeFragment as default view on start
         FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-        tx.replace(R.id.container_body, new ConversationFragment());
+        tx.replace(R.id.container_body, new HomeFragment());
         tx.addToBackStack(null);
         tx.commit();
 
@@ -119,6 +120,9 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             SharedPreferences.Editor editor = preferences.edit();
             editor.clear();
             editor.apply();
+
+            Constants.User.AUTH_TOKEN = null;
+            Constants.User.USER_DETAILS = null;
 
             Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(loginIntent);
