@@ -6,7 +6,7 @@
               tools:context=".DisplayConversationActivity"
               android:background="@color/windowBackground"
     >
-p
+
     <include
         android:id="@+id/toolbar"
         layout="@layout/toolbar"/>
