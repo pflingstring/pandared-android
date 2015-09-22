@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         // set HomeFragment as default view on start
         FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
         tx.replace(R.id.container_body, new HomeFragment());
-        tx.addToBackStack(null);
         tx.commit();
 
         FragmentDrawer drawerFragment = (FragmentDrawer) getSupportFragmentManager()

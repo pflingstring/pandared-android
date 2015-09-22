@@ -23,11 +23,6 @@
             android:name=".LoginActivity"
             android:label="@string/login" >
         </activity>
-        <activity
-            android:name=".DisplayConversationActivity"
-            android:parentActivityName=".MainActivity"
-            android:label="@string/title_activity_display_conversation" >
-        </activity>
     </application>
 
 </manifest>

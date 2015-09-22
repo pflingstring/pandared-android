@@ -1,28 +1,31 @@
 package red.panda.utils;
 
-import red.panda.ConversationFragment;
 import red.panda.requests.ConversationRequest;
-import red.panda.DisplayConversationActivity;
+import red.panda.DisplayConversationFragment;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.AuthFailureError;
 import com.android.volley.VolleyError;
 
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v4.app.Fragment;
+
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.view.View;
 import android.widget.Toast;
+import android.view.View;
 
 import android.content.SharedPreferences;
 import android.content.Context;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Intent;
 import java.util.HashMap;
 import java.util.Map;
+import red.panda.R;
 
 public class ConversationUtils
 {
@@ -100,7 +103,6 @@ public class ConversationUtils
                final RecyclerView view)
     {
         if (id == null)
-            // get all conversation's IDs
             return new Listener<String>() {
                 @Override
                 public void onResponse(String response)
@@ -108,20 +110,21 @@ public class ConversationUtils
                     populateViews(response, context, view);
                 }};
         else
-            // load messages by ID in new Activity
             return new Listener<String>() {
                 @Override
                 public void onResponse(String response)
                 {
-                    Intent intent = new Intent(context, DisplayConversationActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra(ConversationFragment.MESSAGES, response);
-                    context.startActivity(intent);
+                    Fragment fragment = DisplayConversationFragment.newInstance(response);
+                    FragmentActivity activity = (FragmentActivity) context;
+                    FragmentManager manager = activity.getSupportFragmentManager();
+                    FragmentTransaction transaction = manager.beginTransaction();
+                    transaction.replace(R.id.container_body, fragment);
+                    transaction.addToBackStack(null);
+                    transaction.commit();
                 }};
     }
 
     public static void createRequest(@Nullable String id, Context context, @Nullable RecyclerView view)
-
     {
         ErrorListener errListener = createErrorListener(context, "ConversationUtils error");
         Listener<String> resListener;
@@ -140,19 +143,5 @@ public class ConversationUtils
         RequestQueueSingleton.addToQueue(request, context);
     }
 
-    public static boolean authorIsMe(String id)
-    {
-        try
-        {
-            JSONObject jsonObject = new JSONObject(Constants.User.USER_DETAILS);
-            String myID = jsonObject.getString("id");
-            return myID.equals(id);
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-            return false;
-        }
-    }
 }
 
