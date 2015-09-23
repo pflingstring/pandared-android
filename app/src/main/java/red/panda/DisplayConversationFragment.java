@@ -1,12 +1,16 @@
 package red.panda;
 
 import red.panda.utils.ConversationAdapter;
+import red.panda.NavDrawer.FragmentDrawer;
 import red.panda.utils.JsonUtils;
 
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 import org.json.JSONObject;
 import android.os.Bundle;
@@ -22,6 +26,7 @@ public class DisplayConversationFragment extends Fragment
     RecyclerView.LayoutManager layoutManager;
     RecyclerView.Adapter adapter;
     RecyclerView messagesView;
+    Toolbar toolbar;
 
     public static DisplayConversationFragment newInstance(String response)
     {
@@ -39,6 +44,20 @@ public class DisplayConversationFragment extends Fragment
         if (getArguments() != null)
         {
             messages = getArguments().getString(MESSAGES);
+        }
+
+        setHasOptionsMenu(true);
+
+        AppCompatActivity activity = (AppCompatActivity) getActivity();
+        FragmentDrawer drawer = (FragmentDrawer) activity.getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_navigation_drawer);
+        drawer.setDrawerToggle(false);
+
+        toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
+        activity.setSupportActionBar(toolbar);
+        if (activity.getSupportActionBar() != null)
+        {
+            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
     }
 
@@ -59,6 +78,19 @@ public class DisplayConversationFragment extends Fragment
         }
 
         return rootView;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch (item.getItemId())
+        {
+            case android.R.id.home :
+                return true;
+
+            default :
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

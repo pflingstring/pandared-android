@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import red.panda.utils.SharedPrefUtils;
 public class MainActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener
 {
     Toolbar toolbar;
+    FragmentDrawer drawerFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -51,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         tx.replace(R.id.container_body, new HomeFragment());
         tx.commit();
 
-        FragmentDrawer drawerFragment = (FragmentDrawer) getSupportFragmentManager()
+        drawerFragment = (FragmentDrawer) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_navigation_drawer);
         drawerFragment.setUp(R.id.fragment_navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
@@ -102,36 +104,43 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        ActionBarDrawerToggle drawToggle = drawerFragment.getDrawerToggle();
+        if (drawToggle.isDrawerIndicatorEnabled() &&
+            drawToggle.onOptionsItemSelected(item))
+        { return true; }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
+        switch (item.getItemId())
         {
-            return true;
+            case android.R.id.home :
+                onBackPressed();
+                return true;
+            case R.id.action_logout :
+                logout();
+                return true;
+
+            default :
+                return super.onOptionsItemSelected(item);
         }
-
-        if (id == R.id.action_logout)
-        {
-            SharedPreferences preferences = SharedPrefUtils.getPreferences(this);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.clear();
-            editor.apply();
-
-            Constants.User.AUTH_TOKEN = null;
-            Constants.User.USER_DETAILS = null;
-
-            Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-            startActivity(loginIntent);
-            finish();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
+    public void logout()
+    {
+        SharedPreferences preferences = SharedPrefUtils.getPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+
+        Constants.User.AUTH_TOKEN = null;
+        Constants.User.USER_DETAILS = null;
+
+        Intent loginIntent = new Intent(this, LoginActivity.class);
+        startActivity(loginIntent);
+        finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        drawerFragment.setDrawerToggle(true);
+    }
 }
-
-
