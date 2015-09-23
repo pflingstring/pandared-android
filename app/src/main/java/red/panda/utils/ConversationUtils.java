@@ -143,5 +143,11 @@ public class ConversationUtils
         RequestQueueSingleton.addToQueue(request, context);
     }
 
+    public static String makeAvatarURL(String id)
+    {
+        String url = "https://i.imgur.com/";
+        return url + id + ".png";
+    }
+
 }
 

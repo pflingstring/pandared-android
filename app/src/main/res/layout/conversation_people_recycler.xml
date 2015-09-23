@@ -9,12 +9,11 @@
     android:paddingEnd="10dp"
     >
 
-    <ImageView
+    <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/avatar"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:paddingEnd="5dp"
-        android:src="@drawable/avatar_yours"
         />
 
     <LinearLayout

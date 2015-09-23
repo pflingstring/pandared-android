@@ -1,21 +1,44 @@
 package red.panda.utils;
 
+import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.android.volley.RequestQueue;
 import com.android.volley.Request;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.util.LruCache;
 
 public class RequestQueueSingleton
 {
     private static RequestQueueSingleton queueSingleton;
     private static Context appContext;
     private RequestQueue requestQueue;
+    private ImageLoader mImageLoader;
 
     // constructor
     private RequestQueueSingleton(Context context)
     {
         appContext = context;
         requestQueue = getRequestQueue();
+
+        mImageLoader = new ImageLoader(requestQueue,
+           new ImageLoader.ImageCache()
+           {
+               private final LruCache<String, Bitmap> cache = new LruCache<>(20);
+
+               @Override
+               public Bitmap getBitmap(String url)
+               {
+                   return cache.get(url);
+               }
+
+               @Override
+               public void putBitmap(String url, Bitmap bitmap)
+               {
+                   cache.put(url, bitmap);
+               }
+           });
+
     }
 
     // returns an instance of  RequestQueueSingleton
@@ -24,6 +47,11 @@ public class RequestQueueSingleton
             queueSingleton = new RequestQueueSingleton(context);
 
         return queueSingleton;
+    }
+
+    public ImageLoader getImageLoader()
+    {
+        return mImageLoader;
     }
 
     // get the actual requestQueue
@@ -47,8 +75,4 @@ public class RequestQueueSingleton
     {
         RequestQueueSingleton.getInstance(context).addRequestToQueue(req);
     }
-
-
-
-
 }
