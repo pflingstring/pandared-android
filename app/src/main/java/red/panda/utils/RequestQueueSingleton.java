@@ -22,23 +22,7 @@ public class RequestQueueSingleton
         requestQueue = getRequestQueue();
 
         mImageLoader = new ImageLoader(requestQueue,
-           new ImageLoader.ImageCache()
-           {
-               private final LruCache<String, Bitmap> cache = new LruCache<>(20);
-
-               @Override
-               public Bitmap getBitmap(String url)
-               {
-                   return cache.get(url);
-               }
-
-               @Override
-               public void putBitmap(String url, Bitmap bitmap)
-               {
-                   cache.put(url, bitmap);
-               }
-           });
-
+            new LruBitmapCache(LruBitmapCache.getCacheSize(context)));
     }
 
     // returns an instance of  RequestQueueSingleton
