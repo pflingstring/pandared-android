@@ -62,15 +62,16 @@ public class ConversationPeopleAdapter extends
         {
             String url = ConversationUtils.makeAvatarURL(id);
             imageLoader = RequestQueueSingleton.getInstance(context).getImageLoader();
+            avatar.setDefaultImageResId(R.drawable.place_holder);
             avatar.setImageUrl(url, imageLoader);
         }
 
         public void setNoAvatar()
         {
-            avatar.setImageResource(R.drawable.avatar_default);
+            avatar.setDefaultImageResId(R.drawable.avatar_default);
         }
-    }
 
+    }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
@@ -87,57 +88,42 @@ public class ConversationPeopleAdapter extends
     public void onBindViewHolder(ViewHolder viewHolder, int position)
     {
         JSONObject currentJson = dataSet[position];
-        String author, authorTo, myUsername, msg, date, avatarURL;
-
         try
         {
+            Context context = viewHolder.avatar.getContext();
+            boolean authorIsMe;
+
+            String authorUsername, myUsername, msg, date, avatarURL;
+            JSONObject myUserJSON = new JSONObject(Constants.User.USER_DETAILS);
             JSONObject authorJSON = currentJson.getJSONObject("author");
             JSONObject toJSON = currentJson.getJSONObject("to");
 
-            author = JsonUtils.getFieldFromJSON(authorJSON, "username");
-            authorTo = JsonUtils.getFieldFromJSON(toJSON, "username");
-            myUsername = JsonUtils.getFieldFromJSON(new JSONObject(Constants.User.USER_DETAILS), "username");
-
-            Context context = viewHolder.avatar.getContext();
-            boolean authorIsMe, hasAvatar;
-
-            authorIsMe = (myUsername != null) && (myUsername.equals(author));
-
-            if (authorIsMe)
-            {
-                viewHolder.setUsername(authorTo);
-                hasAvatar = toJSON.has("avatar");
-            }
-            else
-            {
-                viewHolder.setUsername(author);
-                hasAvatar = authorJSON.has("avatar");
-            }
-
-            if (hasAvatar)
-            {
-                if (authorIsMe)
-                    avatarURL = JsonUtils.getFieldFromJSON(toJSON, "avatar");
-                else
-                    avatarURL = JsonUtils.getFieldFromJSON(authorJSON, "avatar");
-            }
-            else
-            {
-                avatarURL = null;
-                viewHolder.setNoAvatar();
-            }
-
+            authorUsername = JsonUtils.getFieldFromJSON(authorJSON, "username");
+            myUsername = JsonUtils.getFieldFromJSON(myUserJSON, "username");
             date = currentJson.getString("lastReplyOn").substring(0, 10);
             msg = currentJson.getString("toAuthorId");
-            viewHolder.setAvatar(avatarURL, context);
+
             viewHolder.setMessage(msg);
             viewHolder.setDate(date);
+
+            authorIsMe = (myUsername != null) && (myUsername.equals(authorUsername));
+            JSONObject author = authorIsMe ? toJSON : authorJSON;
+            viewHolder.setUsername(author.getString("username"));
+
+            if (author.has("avatar"))
+            {
+                avatarURL = JsonUtils.getFieldFromJSON(author, "avatar");
+                viewHolder.setAvatar(avatarURL, context);
+            }
+            else
+            {
+                viewHolder.setNoAvatar();
+            }
         }
         catch (JSONException e)
         {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -145,5 +131,5 @@ public class ConversationPeopleAdapter extends
     {
         return dataSet.length;
     }
-
 }
+

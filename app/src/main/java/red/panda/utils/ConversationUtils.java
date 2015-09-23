@@ -146,7 +146,7 @@ public class ConversationUtils
     public static String makeAvatarURL(String id)
     {
         String url = "https://i.imgur.com/";
-        return url + id + ".png";
+        return url + id + "s.png";
     }
 
 }

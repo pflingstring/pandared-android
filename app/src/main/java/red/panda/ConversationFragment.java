@@ -15,8 +15,8 @@ import red.panda.utils.ConversationUtils;
 
 public class ConversationFragment extends Fragment
 {
-    public final static String MESSAGES = "red.panda.MESSAGES";
     RecyclerView.LayoutManager layoutManager;
+    RecyclerView.Adapter adapter;
     RecyclerView peopleListView;
 
     public ConversationFragment() {}
@@ -33,8 +33,10 @@ public class ConversationFragment extends Fragment
         View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
 
         peopleListView = (RecyclerView) rootView.findViewById(R.id.peopleList);
+        peopleListView.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getActivity());
         peopleListView.setLayoutManager(layoutManager);
+        peopleListView.setAdapter(adapter);
         ConversationUtils.createRequest(null, getActivity(), peopleListView);
 
         return rootView;
