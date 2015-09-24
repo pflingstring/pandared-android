@@ -1,4 +1,4 @@
-package red.panda;
+package red.panda.activities;
 
 import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
@@ -14,9 +14,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import red.panda.NavDrawer.FragmentDrawer;
-import red.panda.utils.Constants;
-import red.panda.utils.SharedPrefUtils;
+import red.panda.activities.fragments.ConversationFragment;
+import red.panda.activities.fragments.FragmentDrawer;
+import red.panda.activities.fragments.HomeFragment;
+import red.panda.R;
+import red.panda.utils.misc.Constants;
+import red.panda.utils.misc.SharedPrefUtils;
 
 public class MainActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener
 {

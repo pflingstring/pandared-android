@@ -1,7 +1,7 @@
 // Author :  Ravi Tamada
 // source : http://www.androidhive.info/2015/04/android-getting-started-with-material-design/
 
-package red.panda.NavDrawer;
+package red.panda.utils.misc;
 
 public class NavDrawerItem
 {

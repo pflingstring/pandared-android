@@ -1,4 +1,4 @@
-package red.panda.utils;
+package red.panda.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -15,13 +15,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import red.panda.R;
+import red.panda.utils.misc.Constants;
+import red.panda.utils.ConversationUtils;
+import red.panda.utils.JsonUtils;
+import red.panda.utils.misc.RequestQueueSingleton;
 
-public class ConversationPeopleAdapter extends
-        RecyclerView.Adapter<ConversationPeopleAdapter.ViewHolder>
+public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder>
 {
     private JSONObject[] dataSet;
 
-    public ConversationPeopleAdapter(JSONObject[] jsonObjects)
+    public ConversationAdapter(JSONObject[] jsonObjects)
     {
         dataSet = jsonObjects;
     }

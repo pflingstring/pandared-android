@@ -1,10 +1,11 @@
-package red.panda;
+package red.panda.activities;
 
-import red.panda.utils.Constants;
+import red.panda.R;
+import red.panda.utils.misc.Constants;
 import red.panda.utils.JsonUtils;
-import red.panda.utils.RequestQueueSingleton;
+import red.panda.utils.misc.RequestQueueSingleton;
 import red.panda.requests.AuthRequest;
-import red.panda.utils.SharedPrefUtils;
+import red.panda.utils.misc.SharedPrefUtils;
 
 import android.support.v7.app.AppCompatActivity;
 import com.android.volley.VolleyError;

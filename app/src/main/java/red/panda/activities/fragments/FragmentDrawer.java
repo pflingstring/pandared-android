@@ -1,7 +1,7 @@
 // Author :  Ravi Tamada
 // source : http://www.androidhive.info/2015/04/android-getting-started-with-material-design/
 
-package red.panda.NavDrawer;
+package red.panda.activities.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -18,7 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import red.panda.R;
-import red.panda.utils.ItemClickSupport;
+import red.panda.utils.misc.NavDrawerItem;
+import red.panda.adapters.NavigationDrawerAdapter;
+import red.panda.utils.misc.ItemClickSupport;
 
 public class FragmentDrawer extends Fragment
 {

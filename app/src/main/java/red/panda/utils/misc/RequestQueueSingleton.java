@@ -1,12 +1,10 @@
-package red.panda.utils;
+package red.panda.utils.misc;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.android.volley.RequestQueue;
 import com.android.volley.Request;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.util.LruCache;
 
 public class RequestQueueSingleton
 {

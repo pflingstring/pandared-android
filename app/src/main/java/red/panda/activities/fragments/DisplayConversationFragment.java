@@ -1,7 +1,7 @@
-package red.panda;
+package red.panda.activities.fragments;
 
-import red.panda.utils.ConversationAdapter;
-import red.panda.NavDrawer.FragmentDrawer;
+import red.panda.R;
+import red.panda.adapters.DisplayConversationAdapter;
 import red.panda.utils.JsonUtils;
 
 import android.support.v7.widget.LinearLayoutManager;
@@ -73,7 +73,7 @@ public class DisplayConversationFragment extends Fragment
         JSONObject[] input = JsonUtils.toArrayOfJSON(messages);
         if (input != null)
         {
-            adapter = new ConversationAdapter(input);
+            adapter = new DisplayConversationAdapter(input);
             messagesView.setAdapter(adapter);
         }
 

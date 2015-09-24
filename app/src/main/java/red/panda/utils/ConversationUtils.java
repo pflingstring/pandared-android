@@ -1,7 +1,8 @@
 package red.panda.utils;
 
+import red.panda.adapters.ConversationAdapter;
 import red.panda.requests.ConversationRequest;
-import red.panda.DisplayConversationFragment;
+import red.panda.activities.fragments.DisplayConversationFragment;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -26,6 +27,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 import red.panda.R;
+import red.panda.utils.misc.ItemClickSupport;
+import red.panda.utils.misc.RequestQueueSingleton;
+import red.panda.utils.misc.SharedPrefUtils;
 
 public class ConversationUtils
 {
@@ -68,7 +72,7 @@ public class ConversationUtils
     {
         RecyclerView.Adapter adapter;
         final JSONObject[] dataSet = JsonUtils.toArrayOfJSON(input);
-        adapter = new ConversationPeopleAdapter(dataSet);
+        adapter = new ConversationAdapter(dataSet);
         view.setAdapter(adapter);
 
         ItemClickSupport.addTo(view).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {

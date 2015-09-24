@@ -1,7 +1,7 @@
 // Author : Hugo Visser
 // taken from : http://www.littlerobots.nl/blog/Handle-Android-RecyclerView-Clicks/
 
-package red.panda.utils;
+package red.panda.utils.misc;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

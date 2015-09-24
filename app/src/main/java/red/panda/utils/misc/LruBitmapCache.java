@@ -1,4 +1,4 @@
-package red.panda.utils;
+package red.panda.utils.misc;
 
 import android.content.Context;
 import android.graphics.Bitmap;

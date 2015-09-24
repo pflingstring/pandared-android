@@ -1,7 +1,7 @@
 // Author :  Ravi Tamada
 // source : http://www.androidhive.info/2015/04/android-getting-started-with-material-design/
 
-package red.panda.NavDrawer;
+package red.panda.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -13,6 +13,7 @@ import android.widget.TextView;
 import java.util.Collections;
 import java.util.List;
 
+import red.panda.utils.misc.NavDrawerItem;
 import red.panda.R;
 
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.MyViewHolder>

@@ -1,7 +1,6 @@
-package red.panda.utils;
+package red.panda.adapters;
 
 import android.support.v7.widget.RecyclerView;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import android.view.LayoutInflater;
@@ -11,11 +10,13 @@ import android.view.View;
 import org.json.JSONException;
 import org.json.JSONObject;
 import red.panda.R;
+import red.panda.utils.misc.Constants;
 
-public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder>
+public class DisplayConversationAdapter extends RecyclerView.Adapter<DisplayConversationAdapter.ViewHolder>
 {
     private JSONObject[] dataSet;
-    public ConversationAdapter(JSONObject[] myData)
+
+    public DisplayConversationAdapter(JSONObject[] myData)
     {
         dataSet = myData;
     }
