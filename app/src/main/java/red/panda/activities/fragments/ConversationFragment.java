@@ -38,7 +38,7 @@ public class ConversationFragment extends Fragment
         layoutManager = new LinearLayoutManager(getActivity());
         peopleListView.setLayoutManager(layoutManager);
         peopleListView.setAdapter(adapter);
-        ConversationUtils.createRequest(null, getActivity(), peopleListView);
+        ConversationUtils.createRequest(null, getActivity(), peopleListView, null);
 
         return rootView;
     }

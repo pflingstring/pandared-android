@@ -4,6 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import red.panda.utils.misc.Constants;
+
 public class JsonUtils
 {
     public static JSONObject[] toArrayOfJSON(String json)
@@ -42,6 +44,29 @@ public class JsonUtils
         }
     }
 
+    // TODO: rename the method
+    public static JSONObject getAuthor(JSONObject json)
+    {
+        try
+        {
+            String authorUsername, myUsername;
+            JSONObject myUserJSON = new JSONObject(Constants.User.USER_DETAILS);
+            JSONObject authorJSON = json.getJSONObject("author");
+            JSONObject toJSON = json.getJSONObject("to");
+
+            authorUsername = JsonUtils.getFieldFromJSON(authorJSON, "username");
+            myUsername = JsonUtils.getFieldFromJSON(myUserJSON, "username");
+            boolean authorIsMe;
+
+            authorIsMe = (myUsername != null) && (myUsername.equals(authorUsername));
+            return authorIsMe ? toJSON : authorJSON;
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 
 }

@@ -144,6 +144,12 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setTitle("Conversation");
+            getSupportActionBar().setIcon(android.R.color.transparent);
+        }
+
         drawerFragment.setDrawerToggle(true);
     }
 }
