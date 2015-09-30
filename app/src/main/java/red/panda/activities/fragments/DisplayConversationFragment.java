@@ -5,6 +5,8 @@ import red.panda.adapters.DisplayConversationAdapter;
 import red.panda.utils.JsonUtils;
 import red.panda.utils.misc.SharedPrefUtils;
 
+import android.content.Context;
+import android.os.Handler;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.ViewGroup;
 
 import org.json.JSONException;
@@ -19,7 +22,7 @@ import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.view.View;
-import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -45,8 +48,7 @@ public class DisplayConversationFragment extends Fragment
     Toolbar toolbar;
     Socket socket;
 
-    {
-        try
+    {try
         {
             socket = IO.socket("https://api.panda.red");
         }
@@ -96,9 +98,6 @@ public class DisplayConversationFragment extends Fragment
 
         socket.on("conversation:post:response", emitter);
         socket.connect();
-
-        // TODO: fix bug. hides a portion from the top
-        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
     }
 
     private Emitter.Listener emitter = new Emitter.Listener()
@@ -150,17 +149,37 @@ public class DisplayConversationFragment extends Fragment
     }
 
 
+    public void showSoftKeyboard(View view)
+    {
+        if (view.requestFocus())
+        {
+            InputMethodManager imm = (InputMethodManager) getActivity().
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
+
     public void onViewCreated(View view, Bundle savedInstanceState)
     {
         super.onViewCreated(view, savedInstanceState);
 
         EditText editText = (EditText) view.findViewById(R.id.message_input);
-        editText.setOnClickListener(new View.OnClickListener()
+        editText.setOnTouchListener(new View.OnTouchListener()
         {
             @Override
-            public void onClick(View view)
+            public boolean onTouch(View view, MotionEvent motionEvent)
             {
-                layoutManager.scrollToPosition(adapter.getItemCount()-1);
+                showSoftKeyboard(view);
+
+                Handler handler = new Handler();
+                handler.postDelayed(new Runnable()
+                {
+                    public void run()
+                    {
+                        layoutManager.scrollToPosition(adapter.getItemCount() - 1);
+                    }
+                }, 300);
+                return true;
             }
         });
 
@@ -185,7 +204,6 @@ public class DisplayConversationFragment extends Fragment
                 }
                 socket.emit("conversation:post", result);
                 editText.setText("");
-
             }
         });
 

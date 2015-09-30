@@ -1,5 +1,6 @@
 package red.panda.activities;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,6 +14,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -159,10 +161,18 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+
         if (getSupportActionBar() != null)
         {
-            getSupportActionBar().setTitle("Conversation");
+            getSupportActionBar().setTitle("Conversations");
             getSupportActionBar().setIcon(android.R.color.transparent);
+        }
+
+        // hide soft keyboard
+        InputMethodManager inputMethodManager = (InputMethodManager)  this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (getCurrentFocus() != null)
+        {
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
 
         drawerFragment.setDrawerToggle(true);
