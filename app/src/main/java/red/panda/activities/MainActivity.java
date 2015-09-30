@@ -14,6 +14,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
+
+import java.net.URISyntaxException;
+
 import red.panda.activities.fragments.ConversationFragment;
 import red.panda.activities.fragments.FragmentDrawer;
 import red.panda.activities.fragments.HomeFragment;
@@ -25,6 +30,14 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 {
     Toolbar toolbar;
     FragmentDrawer drawerFragment;
+    Socket socket;
+    {
+        try
+        {
+            socket = IO.socket("https://api.panda.red");
+        }
+        catch (URISyntaxException e) {throw new RuntimeException(e);}
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -58,9 +71,11 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
         drawerFragment = (FragmentDrawer) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_navigation_drawer);
-        drawerFragment.setUp(R.id.fragment_navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
+        drawerFragment.setUp(R.id.fragment_navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
         drawerFragment.setDrawerListener(this);
+
+        socket.emit("auth", SharedPrefUtils.getAuthToken(this));
+        socket.connect();
     }
 
     @Override

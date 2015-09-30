@@ -12,9 +12,18 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import android.os.Bundle;
 import android.view.View;
+
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+import com.github.nkzawa.socketio.client.Socket;
+
+import java.net.URISyntaxException;
+import java.util.List;
 
 public class DisplayConversationFragment extends Fragment
 {
@@ -24,9 +33,17 @@ public class DisplayConversationFragment extends Fragment
     private String messages;
 
     RecyclerView.LayoutManager layoutManager;
-    RecyclerView.Adapter adapter;
+    DisplayConversationAdapter adapter = new DisplayConversationAdapter();
     RecyclerView messagesView;
     Toolbar toolbar;
+    Socket socket;
+    {try
+        {
+            socket = IO.socket("https://api.panda.red");
+        }
+        catch (URISyntaxException e) {throw new RuntimeException(e);}
+    }
+
 
     public static DisplayConversationFragment newInstance(String response)
     {
@@ -59,7 +76,39 @@ public class DisplayConversationFragment extends Fragment
         {
             activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+
+        // TODO: fix duplicate bug
+        socket.on("conversation:post:response", emitter);
+        socket.connect();
     }
+
+    private Emitter.Listener emitter = new Emitter.Listener()
+    {
+        @Override
+        public void call(final Object... args)
+        {
+            if (getActivity() != null)
+                getActivity().runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        JSONObject json = null;
+                        try
+                        {
+                            json = ((JSONObject) args[0]).getJSONObject("message");
+                        }
+                        catch (JSONException e)
+                        {
+                            e.printStackTrace();
+                        }
+                        adapter.addItemToDataSet(json);
+                        adapter.notifyItemInserted(adapter.getItemCount() - 1);
+                        layoutManager.scrollToPosition(adapter.getItemCount()-1);
+                    }
+                });
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -70,10 +119,11 @@ public class DisplayConversationFragment extends Fragment
         layoutManager = new LinearLayoutManager(getActivity());
         messagesView.setLayoutManager(layoutManager);
 
-        JSONObject[] input = JsonUtils.toArrayOfJSON(messages);
+        List<JSONObject> input = JsonUtils.toListOfJSON(messages);
         if (input != null)
         {
-            adapter = new DisplayConversationAdapter(input);
+            adapter.setDataSet(input);
+            messagesView.scrollToPosition(input.size()-1);
             messagesView.setAdapter(adapter);
         }
 

@@ -9,17 +9,27 @@ import android.view.View;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.List;
+
 import red.panda.R;
 import red.panda.utils.misc.Constants;
 
 public class DisplayConversationAdapter extends RecyclerView.Adapter<DisplayConversationAdapter.ViewHolder>
 {
-    private JSONObject[] dataSet;
+    private List<JSONObject> dataSet;
 
-    public DisplayConversationAdapter(JSONObject[] myData)
+    public void setDataSet(List<JSONObject> dataSet)
     {
-        dataSet = myData;
+        this.dataSet = dataSet;
     }
+
+    public void addItemToDataSet(JSONObject json)
+    {
+        dataSet.add(json);
+    }
+
+    public DisplayConversationAdapter() {}
 
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
@@ -59,7 +69,7 @@ public class DisplayConversationAdapter extends RecyclerView.Adapter<DisplayConv
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position)
     {
-        JSONObject jsonObject = dataSet[position];
+        JSONObject jsonObject = dataSet.get(position);
         String id, message, previousID;
 
         try
@@ -78,13 +88,13 @@ public class DisplayConversationAdapter extends RecyclerView.Adapter<DisplayConv
     @Override
     public int getItemCount()
     {
-        return dataSet.length;
+        return dataSet.size();
     }
 
     @Override
     public int getItemViewType(int position)
     {
-        JSONObject jsonObject = dataSet[position];
+        JSONObject jsonObject = dataSet.get(position);
         String currentID, myID;
         try
         {
