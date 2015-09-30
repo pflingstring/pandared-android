@@ -1,45 +1,35 @@
 package red.panda.activities;
 
-import android.app.Activity;
-import android.content.SharedPreferences;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
-
-import java.net.URISyntaxException;
-
 import red.panda.activities.fragments.ConversationFragment;
 import red.panda.activities.fragments.FragmentDrawer;
 import red.panda.activities.fragments.HomeFragment;
-import red.panda.R;
-import red.panda.utils.misc.Constants;
+import red.panda.utils.SocketUtils;
 import red.panda.utils.misc.SharedPrefUtils;
+import red.panda.utils.misc.Constants;
+import red.panda.utils.FragmentUtils;
+import red.panda.R;
+
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v4.app.Fragment;
+
+import android.view.inputmethod.InputMethodManager;
+import com.github.nkzawa.socketio.client.Socket;
+import android.view.MenuItem;
+import android.view.Menu;
+import android.view.View;
+
+import android.content.Intent;
+import android.app.Activity;
+import android.os.Bundle;
 
 public class MainActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener
 {
-    Toolbar toolbar;
+    Socket socket = SocketUtils.init();
     FragmentDrawer drawerFragment;
-    Socket socket;
-    {
-        try
-        {
-            socket = IO.socket("https://api.panda.red");
-        }
-        catch (URISyntaxException e) {throw new RuntimeException(e);}
-    }
+    Toolbar toolbar;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -54,22 +44,19 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             finish();
             return;
         }
+
         Constants.init(this);
 
         setContentView(R.layout.activity_main);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
         if (getSupportActionBar() != null)
         {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // set HomeFragment as default view on start
-        FragmentTransaction tx = getSupportFragmentManager().beginTransaction();
-        tx.replace(R.id.container_body, new HomeFragment());
-        tx.commit();
+        FragmentUtils.replaceFragmentWith(new HomeFragment(), this);
 
         drawerFragment = (FragmentDrawer) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_navigation_drawer);
@@ -102,11 +89,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
         if (fragment != null)
         {
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.container_body, fragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
+            FragmentUtils.replaceFragmentWith(fragment, this);
 
             if (getSupportActionBar() != null)
                 getSupportActionBar().setTitle(title);
@@ -145,11 +128,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
     public void logout()
     {
-        SharedPreferences preferences = SharedPrefUtils.getPreferences(this);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.clear();
-        editor.apply();
-
+        SharedPrefUtils.clearPrefs(this);
         Constants.User.AUTH_TOKEN = null;
         Constants.User.USER_DETAILS = null;
 
@@ -169,7 +148,8 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         }
 
         // hide soft keyboard
-        InputMethodManager inputMethodManager = (InputMethodManager)  this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        InputMethodManager inputMethodManager = (InputMethodManager)
+                this.getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (getCurrentFocus() != null)
         {
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);

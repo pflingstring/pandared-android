@@ -6,6 +6,8 @@ public class Constants
 {
     public Constants() {}
 
+    public static final String SERVER_URL = "https://api.panda.red";
+
     public static class Conversation
     {
         public static final int AUTHOR_IS_ME = 1;

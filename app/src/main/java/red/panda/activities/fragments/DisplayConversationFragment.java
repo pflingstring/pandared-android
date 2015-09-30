@@ -1,72 +1,66 @@
 package red.panda.activities.fragments;
 
-import red.panda.R;
 import red.panda.adapters.DisplayConversationAdapter;
+import red.panda.utils.misc.RequestQueueSingleton;
+import red.panda.utils.ConversationUtils;
+import red.panda.utils.ToolbarUtils;
+import red.panda.utils.SocketUtils;
 import red.panda.utils.JsonUtils;
-import red.panda.utils.misc.SharedPrefUtils;
+import red.panda.R;
 
-import android.content.Context;
-import android.os.Handler;
+import com.github.nkzawa.socketio.client.Socket;
+import com.github.nkzawa.emitter.Emitter;
+
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
+
+import android.view.inputmethod.InputMethodManager;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
+import android.view.MenuItem;
+import android.view.View;
 
+import com.android.volley.toolbox.ImageLoader;
+import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.os.Bundle;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Button;
+import android.os.Handler;
+import android.os.Bundle;
 
-import com.github.nkzawa.emitter.Emitter;
-import com.github.nkzawa.socketio.client.IO;
-import com.github.nkzawa.socketio.client.Socket;
 
-import java.net.URISyntaxException;
+
 import java.util.List;
 
 public class DisplayConversationFragment extends Fragment
 {
     public DisplayConversationFragment() {}
 
-    private static final String MESSAGES = "conversation.id.messages";
-    private static final String TO_AUTHOR = "conversation.author.id"; // TODO: refactor
+    private static final String MESSAGES = "red.panda.messages";
+    private static final String AUTHOR = "red.panda.author";
     private String messages;
-    private String toAuthorId;
+    private String author;
 
     RecyclerView.LayoutManager layoutManager;
     DisplayConversationAdapter adapter = new DisplayConversationAdapter();
-    RecyclerView messagesView;
+    RecyclerView recyclerView;
     Toolbar toolbar;
-    Socket socket;
-
-    {try
-        {
-            socket = IO.socket("https://api.panda.red");
-        }
-        catch (URISyntaxException e)
-        {
-            throw new RuntimeException(e);
-        }
-    }
-
+    Socket socket = SocketUtils.init();
 
     public static DisplayConversationFragment newInstance(String response, String id)
     {
         DisplayConversationFragment fragment = new DisplayConversationFragment();
         Bundle args = new Bundle();
         args.putString(MESSAGES, response);
-        args.putString(TO_AUTHOR, id);
-
+        args.putString(AUTHOR, id);
         fragment.setArguments(args);
+
         return fragment;
     }
 
@@ -74,27 +68,47 @@ public class DisplayConversationFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null)
         {
             messages = getArguments().getString(MESSAGES);
-            toAuthorId = getArguments().getString(TO_AUTHOR);
+            author = getArguments().getString(AUTHOR);
         }
 
         setHasOptionsMenu(true);
 
+        // set back button on toolbar
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        FragmentDrawer drawer = (FragmentDrawer) activity.getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
+        FragmentDrawer drawer = (FragmentDrawer) activity.
+                getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         drawer.setDrawerToggle(false);
 
+        // setup toolbar
         toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
         activity.setSupportActionBar(toolbar);
-        if (activity.getSupportActionBar() != null)
+        ActionBar actionBar = activity.getSupportActionBar();
+        if (actionBar != null)
         {
-            activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        }
+            actionBar.setDisplayHomeAsUpEnabled(true);
 
-        if (getActivity() != null)
-            socket.emit("auth", SharedPrefUtils.getAuthToken(getActivity().getApplicationContext()));
+            ImageLoader loader = RequestQueueSingleton.getInstance(activity).getImageLoader();
+            JSONObject json;
+            String avatarUrl, username;
+            try
+            {
+                json = new JSONObject(author);
+                avatarUrl = ConversationUtils.makeAvatarURL(json.getString("icon"));
+                username = JsonUtils.getFieldFromJSON(json, "name");
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+                avatarUrl = null;
+                username  = null;
+            }
+            ToolbarUtils.setTitle(toolbar, username);
+            ToolbarUtils.setAvatar(toolbar, avatarUrl, loader, getActivity());
+        }
 
         socket.on("conversation:post:response", emitter);
         socket.connect();
@@ -133,21 +147,20 @@ public class DisplayConversationFragment extends Fragment
     {
         View rootView = inflater.inflate(R.layout.fragment_display_conversation, container, false);
 
-        messagesView = (RecyclerView) rootView.findViewById(R.id.messages);
+        recyclerView  = (RecyclerView) rootView.findViewById(R.id.messages);
         layoutManager = new LinearLayoutManager(getActivity());
-        messagesView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager(layoutManager);
 
         List<JSONObject> input = JsonUtils.toListOfJSON(messages);
         if (input != null)
         {
             adapter.setDataSet(input);
-            messagesView.scrollToPosition(input.size() - 1);
-            messagesView.setAdapter(adapter);
+            recyclerView.scrollToPosition(input.size() - 1);
+            recyclerView.setAdapter(adapter);
         }
 
         return rootView;
     }
-
 
     public void showSoftKeyboard(View view)
     {
@@ -163,6 +176,7 @@ public class DisplayConversationFragment extends Fragment
     {
         super.onViewCreated(view, savedInstanceState);
 
+        // scroll to bottom when keyboard is shown
         EditText editText = (EditText) view.findViewById(R.id.message_input);
         editText.setOnTouchListener(new View.OnTouchListener()
         {
@@ -178,11 +192,12 @@ public class DisplayConversationFragment extends Fragment
                     {
                         layoutManager.scrollToPosition(adapter.getItemCount() - 1);
                     }
-                }, 300);
+                }, 250);
                 return true;
             }
         });
 
+        // send a conversation message
         Button button = (Button) view.findViewById(R.id.send_button);
         button.setOnClickListener(new View.OnClickListener()
         {
@@ -196,7 +211,7 @@ public class DisplayConversationFragment extends Fragment
                 try
                 {
                     result.put("msg", input);
-                    result.put("userId", toAuthorId);
+                    result.put("userId", new JSONObject(author).getString("id"));
                 }
                 catch (JSONException e)
                 {
@@ -206,7 +221,6 @@ public class DisplayConversationFragment extends Fragment
                 editText.setText("");
             }
         });
-
     }
 
     @Override

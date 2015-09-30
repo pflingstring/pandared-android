@@ -1,49 +1,34 @@
 package red.panda.utils;
 
+import red.panda.activities.fragments.DisplayConversationFragment;
 import red.panda.adapters.ConversationAdapter;
 import red.panda.requests.ConversationRequest;
-import red.panda.activities.fragments.DisplayConversationFragment;
+
+import red.panda.utils.misc.RequestQueueSingleton;
+import red.panda.utils.misc.ItemClickSupport;
+import red.panda.utils.misc.SharedPrefUtils;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.AuthFailureError;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
-
-import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 import android.view.View;
 
-import android.content.SharedPreferences;
+import android.support.annotation.Nullable;
 import android.content.Context;
-
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import red.panda.R;
-import red.panda.utils.misc.ItemClickSupport;
-import red.panda.utils.misc.RequestQueueSingleton;
-import red.panda.utils.misc.SharedPrefUtils;
 
 public class ConversationUtils
 {
-    public static ConversationRequest requestConversations(
-            Listener<String> resListener, ErrorListener errListener, final Context context)
+    public static ConversationRequest requestConversations(Listener<String> resListener,
+            ErrorListener errListener, final Context context)
     {
         return new ConversationRequest(resListener, errListener)
         {
@@ -52,16 +37,15 @@ public class ConversationUtils
             public Map<String, String> getHeaders() throws AuthFailureError
             {
                 Map<String, String> headers = new HashMap<>();
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                String authToken = preferences.getString(SharedPrefUtils.AUTH_TOKEN, null);
+                String authToken = SharedPrefUtils.getAuthToken(context);
                 headers.put("Authorization", authToken);
                 return headers;
             }
         };
     }
 
-    public static ConversationRequest requestConversationByID(
-            String id, Listener<String> resListener, ErrorListener errListener, final Context context)
+    public static ConversationRequest requestConversationByID(String id,
+            Listener<String> resListener, ErrorListener errListener, final Context context)
     {
         return new ConversationRequest(id+"/?sort=-date", resListener, errListener)
         {
@@ -69,8 +53,7 @@ public class ConversationUtils
             public Map<String, String> getHeaders() throws AuthFailureError
             {
                 Map<String, String> headers = new HashMap<>();
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-                String authToken = preferences.getString(SharedPrefUtils.AUTH_TOKEN, null);
+                String authToken = SharedPrefUtils.getAuthToken(context);
                 headers.put("Authorization", authToken);
                 return headers;
             }
@@ -87,14 +70,14 @@ public class ConversationUtils
         ItemClickSupport.addTo(view).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                String username, avatar, authorID;
-                JSONObject json = dataSet[position];
+                String username, avatar, conversationID, authorID;
+                JSONObject json   = dataSet[position];
                 JSONObject author = JsonUtils.getAuthor(json);
-                String id = JsonUtils.getFieldFromJSON(json, "id");
 
                 username = JsonUtils.getFieldFromJSON(author, "username");
-                avatar = JsonUtils.getFieldFromJSON(author, "avatar");
+                avatar   = JsonUtils.getFieldFromJSON(author, "avatar");
                 authorID = JsonUtils.getFieldFromJSON(author, "id");
+                conversationID = JsonUtils.getFieldFromJSON(json, "id");
 
                 Map<String, String> map = new HashMap<>();
                 map.put("name", username);
@@ -102,8 +85,7 @@ public class ConversationUtils
                 map.put("id", authorID);
 
                 String clickedUser = new JSONObject(map).toString();
-
-                createRequest(id, context, null, clickedUser);
+                createRequest(conversationID, context, null, clickedUser);
             }
         });
     }
@@ -125,7 +107,8 @@ public class ConversationUtils
         return Toast.makeText(context, message, length);
     }
 
-    static Listener<String> createResponse(final Context context, @Nullable final String id, final RecyclerView view, @Nullable final String user)
+    static Listener<String> createResponse(final Context context, @Nullable final String id,
+            final RecyclerView view, @Nullable final String user)
     {
         if (id == null)
             return new Listener<String>() {
@@ -140,49 +123,13 @@ public class ConversationUtils
                 public void onResponse(String response)
                 {
                     FragmentActivity activity = (FragmentActivity) context;
-
-                    final Toolbar toolbar = (Toolbar) ((FragmentActivity) context).findViewById(R.id.toolbar);
-                    ImageLoader loader = RequestQueueSingleton.getInstance(context).getImageLoader();
-                    String authorID;
-                    try
-                    {
-                        // TODO: refactor
-                        JSONObject json = new JSONObject(user);
-                        String url = ConversationUtils.makeAvatarURL(json.getString("icon"));
-                        toolbar.setTitle(json.getString("name"));
-                        authorID = JsonUtils.getFieldFromJSON(json, "id");
-
-                        loader.get(url, new ImageLoader.ImageListener()
-                        {
-                            @Override
-                            public void onResponse(ImageLoader.ImageContainer response, boolean isImmediate)
-                            {
-                                Bitmap bitmap = response.getBitmap();
-                                toolbar.setLogo(new BitmapDrawable(bitmap));
-                            }
-
-                            @Override
-                            public void onErrorResponse(VolleyError error)
-                            {
-
-                            }
-                        });
-                    }
-                    catch (JSONException e)
-                    {
-                        e.printStackTrace();
-                        authorID = null;
-                    }
-                    Fragment fragment = DisplayConversationFragment.newInstance(response, authorID);
-                    FragmentManager manager = activity.getSupportFragmentManager();
-                    FragmentTransaction transaction = manager.beginTransaction();
-                    transaction.replace(R.id.container_body, fragment);
-                    transaction.addToBackStack(null);
-                    transaction.commit();
+                    Fragment fragment = DisplayConversationFragment.newInstance(response, user);
+                    FragmentUtils.replaceFragmentWith(fragment, activity);
                 }};
     }
 
-    public static void createRequest(@Nullable String id, Context context, @Nullable RecyclerView view, @Nullable String user)
+    public static void createRequest(@Nullable String id, Context context,
+            @Nullable RecyclerView view, @Nullable String user)
     {
         ErrorListener errListener = createErrorListener(context, "ConversationUtils error");
         Listener<String> resListener;
@@ -195,7 +142,7 @@ public class ConversationUtils
         }
         else
         {
-            resListener = createResponse(context, id, view, user);
+            resListener = createResponse(context, id, null, user);
             request = requestConversationByID(id, resListener, errListener, context);
         }
         RequestQueueSingleton.addToQueue(request, context);
@@ -208,4 +155,3 @@ public class ConversationUtils
     }
 
 }
-

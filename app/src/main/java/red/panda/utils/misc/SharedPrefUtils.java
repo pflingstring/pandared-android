@@ -26,4 +26,12 @@ public class SharedPrefUtils
         return prefs.getString(USER_DETAILS, null);
     }
 
+    public static void clearPrefs(Context context)
+    {
+        SharedPreferences preferences = SharedPrefUtils.getPreferences(context);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.clear();
+        editor.apply();
+    }
+
 }
