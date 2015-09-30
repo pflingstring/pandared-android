@@ -13,7 +13,8 @@
 
     <!--DisplayConversation-->
     <string name="send">Send</string>
-    <string name="title_activity_display_conversation">DisplayConversationActivity</string>
+    <string name="message">type a message</string>
+
 
     <!--Toolbar-->
     <string name="action_search">Search</string>

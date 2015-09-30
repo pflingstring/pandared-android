@@ -3,6 +3,7 @@ package red.panda.activities.fragments;
 import red.panda.R;
 import red.panda.adapters.DisplayConversationAdapter;
 import red.panda.utils.JsonUtils;
+import red.panda.utils.misc.SharedPrefUtils;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.app.AppCompatActivity;
@@ -15,8 +16,12 @@ import android.view.ViewGroup;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
@@ -30,26 +35,35 @@ public class DisplayConversationFragment extends Fragment
     public DisplayConversationFragment() {}
 
     private static final String MESSAGES = "conversation.id.messages";
+    private static final String TO_AUTHOR = "conversation.author.id"; // TODO: refactor
     private String messages;
+    private String toAuthorId;
 
     RecyclerView.LayoutManager layoutManager;
     DisplayConversationAdapter adapter = new DisplayConversationAdapter();
     RecyclerView messagesView;
     Toolbar toolbar;
     Socket socket;
-    {try
+
+    {
+        try
         {
             socket = IO.socket("https://api.panda.red");
         }
-        catch (URISyntaxException e) {throw new RuntimeException(e);}
+        catch (URISyntaxException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
 
-    public static DisplayConversationFragment newInstance(String response)
+    public static DisplayConversationFragment newInstance(String response, String id)
     {
         DisplayConversationFragment fragment = new DisplayConversationFragment();
         Bundle args = new Bundle();
         args.putString(MESSAGES, response);
+        args.putString(TO_AUTHOR, id);
+
         fragment.setArguments(args);
         return fragment;
     }
@@ -61,13 +75,13 @@ public class DisplayConversationFragment extends Fragment
         if (getArguments() != null)
         {
             messages = getArguments().getString(MESSAGES);
+            toAuthorId = getArguments().getString(TO_AUTHOR);
         }
 
         setHasOptionsMenu(true);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
-        FragmentDrawer drawer = (FragmentDrawer) activity.getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_navigation_drawer);
+        FragmentDrawer drawer = (FragmentDrawer) activity.getSupportFragmentManager().findFragmentById(R.id.fragment_navigation_drawer);
         drawer.setDrawerToggle(false);
 
         toolbar = (Toolbar) activity.findViewById(R.id.toolbar);
@@ -77,9 +91,14 @@ public class DisplayConversationFragment extends Fragment
             activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        // TODO: fix duplicate bug
+        if (getActivity() != null)
+            socket.emit("auth", SharedPrefUtils.getAuthToken(getActivity().getApplicationContext()));
+
         socket.on("conversation:post:response", emitter);
         socket.connect();
+
+        // TODO: fix bug. hides a portion from the top
+        getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
     }
 
     private Emitter.Listener emitter = new Emitter.Listener()
@@ -104,7 +123,7 @@ public class DisplayConversationFragment extends Fragment
                         }
                         adapter.addItemToDataSet(json);
                         adapter.notifyItemInserted(adapter.getItemCount() - 1);
-                        layoutManager.scrollToPosition(adapter.getItemCount()-1);
+                        layoutManager.scrollToPosition(adapter.getItemCount() - 1);
                     }
                 });
         }
@@ -123,11 +142,53 @@ public class DisplayConversationFragment extends Fragment
         if (input != null)
         {
             adapter.setDataSet(input);
-            messagesView.scrollToPosition(input.size()-1);
+            messagesView.scrollToPosition(input.size() - 1);
             messagesView.setAdapter(adapter);
         }
 
         return rootView;
+    }
+
+
+    public void onViewCreated(View view, Bundle savedInstanceState)
+    {
+        super.onViewCreated(view, savedInstanceState);
+
+        EditText editText = (EditText) view.findViewById(R.id.message_input);
+        editText.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                layoutManager.scrollToPosition(adapter.getItemCount()-1);
+            }
+        });
+
+        Button button = (Button) view.findViewById(R.id.send_button);
+        button.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view)
+            {
+                EditText editText = (EditText) getActivity().findViewById(R.id.message_input);
+                JSONObject result = new JSONObject();
+
+                String input = editText.getText().toString();
+                try
+                {
+                    result.put("msg", input);
+                    result.put("userId", toAuthorId);
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+                socket.emit("conversation:post", result);
+                editText.setText("");
+
+            }
+        });
+
     }
 
     @Override
@@ -135,10 +196,10 @@ public class DisplayConversationFragment extends Fragment
     {
         switch (item.getItemId())
         {
-            case android.R.id.home :
+            case android.R.id.home:
                 return true;
 
-            default :
+            default:
                 return super.onOptionsItemSelected(item);
         }
     }

@@ -87,16 +87,19 @@ public class ConversationUtils
         ItemClickSupport.addTo(view).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                String username, avatar;
+                String username, avatar, authorID;
                 JSONObject json = dataSet[position];
                 JSONObject author = JsonUtils.getAuthor(json);
                 String id = JsonUtils.getFieldFromJSON(json, "id");
 
                 username = JsonUtils.getFieldFromJSON(author, "username");
                 avatar = JsonUtils.getFieldFromJSON(author, "avatar");
+                authorID = JsonUtils.getFieldFromJSON(author, "id");
+
                 Map<String, String> map = new HashMap<>();
                 map.put("name", username);
                 map.put("icon", avatar);
+                map.put("id", authorID);
 
                 String clickedUser = new JSONObject(map).toString();
 
@@ -122,7 +125,7 @@ public class ConversationUtils
         return Toast.makeText(context, message, length);
     }
 
-    static Listener<String> createResponse(final Context context, @Nullable String id, final RecyclerView view, @Nullable final String user)
+    static Listener<String> createResponse(final Context context, @Nullable final String id, final RecyclerView view, @Nullable final String user)
     {
         if (id == null)
             return new Listener<String>() {
@@ -136,18 +139,18 @@ public class ConversationUtils
                 @Override
                 public void onResponse(String response)
                 {
-                    Fragment fragment = DisplayConversationFragment.newInstance(response);
                     FragmentActivity activity = (FragmentActivity) context;
 
                     final Toolbar toolbar = (Toolbar) ((FragmentActivity) context).findViewById(R.id.toolbar);
                     ImageLoader loader = RequestQueueSingleton.getInstance(context).getImageLoader();
-
+                    String authorID;
                     try
                     {
                         // TODO: refactor
                         JSONObject json = new JSONObject(user);
                         String url = ConversationUtils.makeAvatarURL(json.getString("icon"));
                         toolbar.setTitle(json.getString("name"));
+                        authorID = JsonUtils.getFieldFromJSON(json, "id");
 
                         loader.get(url, new ImageLoader.ImageListener()
                         {
@@ -168,7 +171,9 @@ public class ConversationUtils
                     catch (JSONException e)
                     {
                         e.printStackTrace();
+                        authorID = null;
                     }
+                    Fragment fragment = DisplayConversationFragment.newInstance(response, authorID);
                     FragmentManager manager = activity.getSupportFragmentManager();
                     FragmentTransaction transaction = manager.beginTransaction();
                     transaction.replace(R.id.container_body, fragment);
