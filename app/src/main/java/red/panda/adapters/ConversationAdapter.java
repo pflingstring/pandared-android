@@ -1,6 +1,7 @@
 package red.panda.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
 
 import red.panda.R;
@@ -30,10 +32,14 @@ import red.panda.utils.misc.RequestQueueSingleton;
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder>
 {
     private JSONObject[] dataSet;
+    Set<String> unreadIDs;
 
-    public ConversationAdapter(JSONObject[] jsonObjects)
+
+
+    public ConversationAdapter(JSONObject[] jsonObjects, Set<String> ids)
     {
         dataSet = jsonObjects;
+        unreadIDs = ids;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder
@@ -91,6 +97,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         View v = LayoutInflater
                 .from(parent.getContext())
                 .inflate(layout, parent, false);
+
+        if (viewType == 1)
+            v.setBackgroundColor(Color.parseColor("#A9DDA9"));
+
         return new ViewHolder(v);
     }
 
@@ -158,5 +168,28 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     {
         return dataSet.length;
     }
+
+    @Override
+    public int getItemViewType(int position)
+    {
+        String currentID;
+        try
+        {
+            currentID = dataSet[position].getString("id");
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+            currentID = null;
+        }
+
+        if (currentID != null && unreadIDs.contains(currentID))
+        {
+            return 1;
+        }
+
+        return 0;
+    }
+
 }
 

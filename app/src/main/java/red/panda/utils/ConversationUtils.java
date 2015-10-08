@@ -8,6 +8,7 @@ import red.panda.utils.misc.RequestQueueSingleton;
 import red.panda.utils.misc.ItemClickSupport;
 import red.panda.utils.misc.SharedPrefUtils;
 
+import com.android.volley.Response;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.AuthFailureError;
@@ -21,9 +22,15 @@ import android.view.View;
 
 import android.support.annotation.Nullable;
 import android.content.Context;
+
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class ConversationUtils
 {
@@ -62,20 +69,49 @@ public class ConversationUtils
 
     static void populateViews(String input, final Context context, RecyclerView view)
     {
+        final Set<String> ids = new TreeSet<>();
+        Response.ErrorListener errListener = createErrorListener(context, "UNREAD ERROR");
+        final StringBuilder stringBuilder = new StringBuilder();
+        Response.Listener<String> listener = new Response.Listener<String>()
+        {
+            @Override
+            public void onResponse(String response)
+            {
+                stringBuilder.append(response);
+                try
+                {
+                    JSONArray unreadJson = new JSONObject(stringBuilder.toString()).getJSONArray("data");
+                    for (int i=0; i<unreadJson.length(); i++)
+                    {
+                        JSONObject json = unreadJson.getJSONObject(i);
+                        ids.add(json.getString("id"));
+                    }
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        };
+        ConversationRequest unreadReq = ConversationUtils.requestConversationByID("unread", listener, errListener, context);
+        RequestQueueSingleton.addToQueue(unreadReq, context);
+
         RecyclerView.Adapter adapter;
         final JSONObject[] dataSet = JsonUtils.toArrayOfJSON(input);
-        adapter = new ConversationAdapter(dataSet);
+        adapter = new ConversationAdapter(dataSet, ids);
         view.setAdapter(adapter);
 
-        ItemClickSupport.addTo(view).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
+        ItemClickSupport.addTo(view).setOnItemClickListener(new ItemClickSupport.OnItemClickListener()
+        {
             @Override
-            public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+            public void onItemClicked(RecyclerView recyclerView, int position, View v)
+            {
                 String username, avatar, conversationID, authorID;
-                JSONObject json   = dataSet[position];
+                JSONObject json = dataSet[position];
                 JSONObject author = JsonUtils.getAuthor(json);
 
                 username = JsonUtils.getFieldFromJSON(author, "username");
-                avatar   = JsonUtils.getFieldFromJSON(author, "avatar");
+                avatar = JsonUtils.getFieldFromJSON(author, "avatar");
                 authorID = JsonUtils.getFieldFromJSON(author, "id");
                 conversationID = JsonUtils.getFieldFromJSON(json, "id");
 
@@ -89,7 +125,6 @@ public class ConversationUtils
             }
         });
     }
-
 
     public static ErrorListener createErrorListener(final Context context, final String message)
     {
