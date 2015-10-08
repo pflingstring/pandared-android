@@ -124,7 +124,7 @@ public class ConversationUtils
                 {
                     FragmentActivity activity = (FragmentActivity) context;
                     Fragment fragment = DisplayConversationFragment.newInstance(response, user);
-                    FragmentUtils.replaceFragmentWith(fragment, activity);
+                    FragmentUtils.replaceFragmentWith(fragment, activity, true);
                 }};
     }
 

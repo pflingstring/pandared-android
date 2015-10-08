@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        FragmentUtils.replaceFragmentWith(new HomeFragment(), this);
+        FragmentUtils.replaceFragmentWith(new HomeFragment(), this, false);
 
         drawerFragment = (FragmentDrawer) getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_navigation_drawer);
@@ -89,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
         if (fragment != null)
         {
-            FragmentUtils.replaceFragmentWith(fragment, this);
+            FragmentUtils.replaceFragmentWith(fragment, this, true);
 
             if (getSupportActionBar() != null)
                 getSupportActionBar().setTitle(title);

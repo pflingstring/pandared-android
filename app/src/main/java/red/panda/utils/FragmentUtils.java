@@ -11,12 +11,17 @@ import red.panda.R;
 
 public class FragmentUtils
 {
-    public static void replaceFragmentWith(Fragment fragment, FragmentActivity activity)
+    public static void replaceFragmentWith(Fragment fragment, FragmentActivity activity, boolean addToBackStack)
     {
         FragmentManager fragmentManager = activity.getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.container_body, fragment);
-        fragmentTransaction.addToBackStack(null);
+
+        if (addToBackStack)
+        {
+            fragmentTransaction.addToBackStack(null);
+        }
+
         fragmentTransaction.commit();
     }
 
