@@ -2,6 +2,7 @@ package red.panda.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.view.View;
@@ -13,6 +14,12 @@ import com.android.volley.toolbox.NetworkImageView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import red.panda.R;
 import red.panda.utils.misc.Constants;
@@ -103,11 +110,28 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
             authorUsername = JsonUtils.getFieldFromJSON(authorJSON, "username");
             myUsername = JsonUtils.getFieldFromJSON(myUserJSON, "username");
-            date = currentJson.getString("lastReplyOn").substring(0, 10);
+            date = currentJson.getString("lastReplyOn");
+
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+            dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+            long milliseconds;
+            try
+            {
+                Date mDate = dateFormatter.parse(date);
+                milliseconds = mDate.getTime();
+            }
+            catch (ParseException e)
+            {
+                e.printStackTrace();
+                milliseconds = 0;
+            }
+            String formattedDate = DateUtils.getRelativeTimeSpanString(milliseconds,
+                    System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
+
             msg = currentJson.getString("toAuthorId");
 
             viewHolder.setMessage(msg);
-            viewHolder.setDate(date);
+            viewHolder.setDate(formattedDate);
 
             authorIsMe = (myUsername != null) && (myUsername.equals(authorUsername));
             JSONObject author = authorIsMe ? toJSON : authorJSON;
