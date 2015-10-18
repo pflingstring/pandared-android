@@ -9,27 +9,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.android.volley.Response;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Set;
-import java.util.TreeSet;
-
 import red.panda.R;
-import red.panda.adapters.ConversationAdapter;
-import red.panda.requests.ConversationRequest;
 import red.panda.utils.ConversationUtils;
-import red.panda.utils.misc.RequestQueueSingleton;
-
 
 public class ConversationFragment extends Fragment
 {
     RecyclerView.LayoutManager layoutManager;
     RecyclerView recyclerView;
+
 
     public ConversationFragment() {}
 
@@ -49,7 +36,6 @@ public class ConversationFragment extends Fragment
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
         ConversationUtils.createRequest(null, getActivity(), recyclerView, null);
-
 
         return rootView;
     }

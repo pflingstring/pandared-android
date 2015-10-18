@@ -13,7 +13,6 @@ import android.widget.TextView;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.ParseException;
@@ -24,7 +23,8 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import red.panda.R;
-import red.panda.utils.misc.Constants;
+import red.panda.models.Conversation;
+import red.panda.models.User;
 import red.panda.utils.ConversationUtils;
 import red.panda.utils.JsonUtils;
 import red.panda.utils.misc.RequestQueueSingleton;
@@ -34,11 +34,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     private JSONObject[] dataSet;
     Set<String> unreadIDs;
 
-
-
-    public ConversationAdapter(JSONObject[] jsonObjects, Set<String> ids)
+    public ConversationAdapter(JSONObject[] conversations, Set<String> ids)
     {
-        dataSet = jsonObjects;
+        dataSet = conversations;
         unreadIDs = ids;
     }
 
@@ -86,7 +84,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         {
             avatar.setDefaultImageResId(R.drawable.avatar_default);
         }
-
     }
 
     @Override
@@ -107,60 +104,38 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position)
     {
-        JSONObject currentJson = dataSet[position];
+        Context context = viewHolder.avatar.getContext();
+        JSONObject json = dataSet[position];
+
+        Conversation conversation = new Conversation(json);
+        User author = User.getAuthor(JsonUtils.getJson(json, "author"), JsonUtils.getJson(json, "to"));
+
+        if (author != null)
+        {
+            viewHolder.setUsername(author.getUsername());
+            if (author.getAvatar() != null)
+                viewHolder.setAvatar(author.getAvatar(), context);
+            else
+                viewHolder.setNoAvatar();
+        }
+
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+        dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
+        long milliseconds;
         try
         {
-            Context context = viewHolder.avatar.getContext();
-            boolean authorIsMe;
-
-            String authorUsername, myUsername, msg, date, avatarURL;
-            JSONObject myUserJSON = new JSONObject(Constants.User.USER_DETAILS);
-            JSONObject authorJSON = currentJson.getJSONObject("author");
-            JSONObject toJSON = currentJson.getJSONObject("to");
-
-            authorUsername = JsonUtils.getFieldFromJSON(authorJSON, "username");
-            myUsername = JsonUtils.getFieldFromJSON(myUserJSON, "username");
-            date = currentJson.getString("lastReplyOn");
-
-            SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-            dateFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
-            long milliseconds;
-            try
-            {
-                Date mDate = dateFormatter.parse(date);
-                milliseconds = mDate.getTime();
-            }
-            catch (ParseException e)
-            {
-                e.printStackTrace();
-                milliseconds = 0;
-            }
-            String formattedDate = DateUtils.getRelativeTimeSpanString(milliseconds,
-                    System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
-
-            msg = currentJson.getString("toAuthorId");
-
-            viewHolder.setMessage(msg);
-            viewHolder.setDate(formattedDate);
-
-            authorIsMe = (myUsername != null) && (myUsername.equals(authorUsername));
-            JSONObject author = authorIsMe ? toJSON : authorJSON;
-            viewHolder.setUsername(author.getString("username"));
-
-            if (author.has("avatar"))
-            {
-                avatarURL = JsonUtils.getFieldFromJSON(author, "avatar");
-                viewHolder.setAvatar(avatarURL, context);
-            }
-            else
-            {
-                viewHolder.setNoAvatar();
-            }
+            Date mDate = dateFormatter.parse(conversation.getLastReplyOn());
+            milliseconds = mDate.getTime();
         }
-        catch (JSONException e)
+        catch (ParseException e)
         {
             e.printStackTrace();
+            milliseconds = 0;
         }
+        String formattedDate = DateUtils.getRelativeTimeSpanString(milliseconds,
+                System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS).toString();
+        viewHolder.setDate(formattedDate);
+        viewHolder.setMessage(conversation.getLastMessage());
     }
 
     @Override
@@ -172,21 +147,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @Override
     public int getItemViewType(int position)
     {
-        String currentID;
-        try
-        {
-            currentID = dataSet[position].getString("id");
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-            currentID = null;
-        }
-
-        if (currentID != null && unreadIDs.contains(currentID))
-        {
+        Conversation conversation = new Conversation(dataSet[position]);
+        if (unreadIDs.contains(conversation.getId()))
             return 1;
-        }
 
         return 0;
     }

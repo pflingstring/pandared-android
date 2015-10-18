@@ -2,6 +2,8 @@ package red.panda.utils;
 
 import red.panda.activities.fragments.DisplayConversationFragment;
 import red.panda.adapters.ConversationAdapter;
+import red.panda.models.Conversation;
+import red.panda.models.User;
 import red.panda.requests.ConversationRequest;
 
 import red.panda.utils.misc.RequestQueueSingleton;
@@ -13,6 +15,7 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.AuthFailureError;
 import com.android.volley.VolleyError;
+import com.github.nkzawa.socketio.client.Socket;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v4.app.FragmentActivity;
@@ -69,9 +72,10 @@ public class ConversationUtils
 
     static void populateViews(String input, final Context context, RecyclerView view)
     {
-        final Set<String> ids = new TreeSet<>();
-        Response.ErrorListener errListener = createErrorListener(context, "UNREAD ERROR");
+        final Set<String> ids = new HashSet<>();
         final StringBuilder stringBuilder = new StringBuilder();
+
+        Response.ErrorListener errListener = createErrorListener(context, "UNREAD ERROR");
         Response.Listener<String> listener = new Response.Listener<String>()
         {
             @Override
@@ -84,7 +88,9 @@ public class ConversationUtils
                     for (int i=0; i<unreadJson.length(); i++)
                     {
                         JSONObject json = unreadJson.getJSONObject(i);
-                        ids.add(json.getString("id"));
+                        Conversation conversation = new Conversation(json);
+                        conversation.setHasUnreadMessages(true);
+                        ids.add(conversation.getId());
                     }
                 }
                 catch (JSONException e)
@@ -106,22 +112,11 @@ public class ConversationUtils
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v)
             {
-                String username, avatar, conversationID, authorID;
                 JSONObject json = dataSet[position];
-                JSONObject author = JsonUtils.getAuthor(json);
-
-                username = JsonUtils.getFieldFromJSON(author, "username");
-                avatar = JsonUtils.getFieldFromJSON(author, "avatar");
-                authorID = JsonUtils.getFieldFromJSON(author, "id");
-                conversationID = JsonUtils.getFieldFromJSON(json, "id");
-
-                Map<String, String> map = new HashMap<>();
-                map.put("name", username);
-                map.put("icon", avatar);
-                map.put("id", authorID);
-
-                String clickedUser = new JSONObject(map).toString();
-                createRequest(conversationID, context, null, clickedUser);
+                User clickedUser = User.getAuthor(JsonUtils.getJson(json, "author"), JsonUtils.getJson(json, "to"));
+                Conversation conversation = new Conversation(json);
+                conversation.setHasUnreadMessages(false);
+                createRequest(conversation.getId(), context, null, clickedUser.toString());
             }
         });
     }

@@ -1,5 +1,7 @@
 package red.panda.utils;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -8,6 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import red.panda.models.Conversation;
 import red.panda.utils.misc.Constants;
 
 public class JsonUtils
@@ -67,22 +70,11 @@ public class JsonUtils
         }
     }
 
-    // TODO: rename the method
-    public static JSONObject getAuthor(JSONObject json)
+    public static JSONObject getJson(JSONObject json, String name)
     {
         try
         {
-            String authorUsername, myUsername;
-            JSONObject myUserJSON = new JSONObject(Constants.User.USER_DETAILS);
-            JSONObject authorJSON = json.getJSONObject("author");
-            JSONObject toJSON = json.getJSONObject("to");
-
-            authorUsername = JsonUtils.getFieldFromJSON(authorJSON, "username");
-            myUsername = JsonUtils.getFieldFromJSON(myUserJSON, "username");
-            boolean authorIsMe;
-
-            authorIsMe = (myUsername != null) && (myUsername.equals(authorUsername));
-            return authorIsMe ? toJSON : authorJSON;
+            return json.getJSONObject(name);
         }
         catch (JSONException e)
         {
