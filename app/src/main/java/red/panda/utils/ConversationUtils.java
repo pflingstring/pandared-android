@@ -116,6 +116,22 @@ public class ConversationUtils
                 User clickedUser = User.getAuthor(JsonUtils.getJson(json, "author"), JsonUtils.getJson(json, "to"));
                 Conversation conversation = new Conversation(json);
                 conversation.setHasUnreadMessages(false);
+
+                Socket socket = SocketUtils.init();
+                try
+                {
+                    //TODO: refactor
+                    String[] unreadMsg = {conversation.getId()};
+                    JSONArray jsonArray = new JSONArray(unreadMsg);
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("captures", jsonArray);
+                    socket.emit("seen-on:post", jsonObject);
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+
                 createRequest(conversation.getId(), context, null, clickedUser.toString());
             }
         });
