@@ -107,7 +107,10 @@ public class DisplayConversationFragment extends Fragment
                 username  = null;
             }
             ToolbarUtils.setTitle(toolbar, username);
-            ToolbarUtils.setAvatar(toolbar, avatarUrl, loader, getActivity());
+            if (avatarUrl != null)
+            {
+                ToolbarUtils.setAvatar(toolbar, avatarUrl, loader, getActivity());
+            }
         }
 
         socket.on("conversation:post:response", emitter);

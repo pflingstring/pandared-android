@@ -3,6 +3,7 @@ package red.panda.utils;
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 
 import com.android.volley.VolleyError;
@@ -15,7 +16,9 @@ public class ToolbarUtils
         toolbar.setTitle(title);
     }
 
-    public static void setAvatar(final Toolbar toolbar, String url, ImageLoader loader, final Activity activity)
+    // TODO: replace url with default avatar string
+    // BUG : no avatar is set if url == null
+    public static void setAvatar(final Toolbar toolbar, @Nullable String url, ImageLoader loader, final Activity activity)
     {
         // TODO: set default avatar if none available
         loader.get(url, new ImageLoader.ImageListener()

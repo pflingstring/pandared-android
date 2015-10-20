@@ -38,6 +38,9 @@ public class ConversationFragment extends Fragment
         ConversationUtils.createRequest(null, getActivity(), recyclerView, null);
 
         return rootView;
+
+        //TODO: check for unread messages
+        //BUG : uses the cached version. Should make new request on Fragment#onCreate
     }
 
     @Override

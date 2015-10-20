@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class ConversationUtils
 {
@@ -120,11 +119,8 @@ public class ConversationUtils
                 Socket socket = SocketUtils.init();
                 try
                 {
-                    //TODO: refactor
-                    String[] unreadMsg = {conversation.getId()};
-                    JSONArray jsonArray = new JSONArray(unreadMsg);
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("captures", jsonArray);
+                    JSONArray jsonArray = JsonUtils.createJsonArray("captures", conversation.getId());
+                    JSONObject jsonObject = (new JSONObject()).put("captures", jsonArray);
                     socket.emit("seen-on:post", jsonObject);
                 }
                 catch (JSONException e)

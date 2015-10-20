@@ -1,17 +1,10 @@
 package red.panda.utils;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import red.panda.models.Conversation;
-import red.panda.utils.misc.Constants;
 
 public class JsonUtils
 {
@@ -75,6 +68,21 @@ public class JsonUtils
         try
         {
             return json.getJSONObject(name);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    // TODO: 10/21/15 make generic
+    public static JSONArray createJsonArray(String key, String value)
+    {
+        String jsonString = "{\"" + key + "\" : [\"" + value + "\"]}";
+        try
+        {
+            return new JSONObject(jsonString).getJSONArray(key);
         }
         catch (JSONException e)
         {
