@@ -6,21 +6,23 @@ import org.json.JSONObject;
 import java.util.LinkedList;
 import java.util.List;
 
+import red.panda.models.Conversation;
+
 public class JsonUtils
 {
-    public static JSONObject[] toArrayOfJSON(String json)
+    public static Conversation[] toConversationArray(String json)
     {
-        JSONObject[] result;
+        Conversation[] result;
         try
         {
             JSONObject jsonObject = new JSONObject(json);
             JSONArray jsonArray = jsonObject.getJSONArray("data");
 
             int length = jsonArray.length();
-            result = new JSONObject[length];
+            result = new Conversation[length];
 
             for (int i=0; i<length; i++)
-                result[i] = jsonArray.getJSONObject(i);
+                result[i] = new Conversation(jsonArray.getJSONObject(i));
 
             return result;
 

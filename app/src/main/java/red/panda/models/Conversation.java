@@ -8,19 +8,21 @@ public class Conversation
 {
 
     private String id;
-    private String toUser;
     private String lastReplyOn;
     private String lastMessage;
+    private User user;
 
 
     private boolean hasUnreadMessages;
 
     public Conversation(JSONObject jsonInput)
     {
+        if (jsonInput.has("author") && jsonInput.has("to"))
+            user = JsonUtils.getFieldFromJSON(jsonInput, "authorId").equals(Constants.User.ID)
+                    ? new User(JsonUtils.getJson(jsonInput, "to"))
+                    : new User(JsonUtils.getJson(jsonInput, "author"));
+
         id = JsonUtils.getFieldFromJSON(jsonInput, "id");
-        toUser = JsonUtils.getFieldFromJSON(jsonInput, "authorId").equals(Constants.User.ID)
-                ? JsonUtils.getFieldFromJSON(jsonInput, "authorId")
-                : JsonUtils.getFieldFromJSON(jsonInput, "toAuthorId");
         lastReplyOn = JsonUtils.getFieldFromJSON(jsonInput, "lastReplyOn");
         lastMessage = "not implemented yet";
         hasUnreadMessages = false;
@@ -34,11 +36,6 @@ public class Conversation
     public void setLastReplyOn(String date)
     {
         lastReplyOn = date;
-    }
-
-    public String getToUser()
-    {
-        return toUser;
     }
 
     public String getId()
@@ -59,5 +56,10 @@ public class Conversation
     public boolean hasUnreadMessages()
     {
         return hasUnreadMessages;
+    }
+
+    public User getUser()
+    {
+        return user;
     }
 }

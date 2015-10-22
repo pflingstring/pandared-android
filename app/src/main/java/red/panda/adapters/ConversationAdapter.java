@@ -17,6 +17,7 @@ import org.json.JSONObject;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
@@ -31,13 +32,27 @@ import red.panda.utils.misc.RequestQueueSingleton;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder>
 {
-    private JSONObject[] dataSet;
-    Set<String> unreadIDs;
+    private Conversation[] dataSet;
 
-    public ConversationAdapter(JSONObject[] conversations, Set<String> ids)
+    public int getItemPosition(String id)
+    {
+        for (int i=0; i<dataSet.length; i++)
+        {
+            Conversation conversation = dataSet[i];
+            if (id.equals(conversation.getId()))
+                return i;
+        }
+        return -1;
+    }
+
+    public void setUnread(int position)
+    {
+        dataSet[position].setHasUnreadMessages(true);
+    }
+
+    public ConversationAdapter(Conversation[] conversations)
     {
         dataSet = conversations;
-        unreadIDs = ids;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder
@@ -105,10 +120,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     public void onBindViewHolder(ViewHolder viewHolder, int position)
     {
         Context context = viewHolder.avatar.getContext();
-        JSONObject json = dataSet[position];
 
-        Conversation conversation = new Conversation(json);
-        User author = User.getAuthor(JsonUtils.getJson(json, "author"), JsonUtils.getJson(json, "to"));
+        Conversation conversation = dataSet[position];
+        User author = conversation.getUser();
 
         if (author != null)
         {
@@ -147,8 +161,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @Override
     public int getItemViewType(int position)
     {
-        Conversation conversation = new Conversation(dataSet[position]);
-        if (unreadIDs.contains(conversation.getId()))
+        if (dataSet[position].hasUnreadMessages())
             return 1;
 
         return 0;
