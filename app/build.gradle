@@ -5,7 +5,7 @@ android {
     buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId 'red.panda'
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -23,6 +23,7 @@ repositories {
 }
 
 dependencies {
+    compile 'com.github.halysongoncalves:pugnotification:1.8.0'
     compile 'com.android.support:recyclerview-v7:23.0.1'
     compile 'com.github.nkzawa:socket.io-client:0.3.0'
     compile 'com.android.support:appcompat-v7:23.0.1'

@@ -9,6 +9,9 @@ import red.panda.utils.misc.Constants;
 import red.panda.utils.FragmentUtils;
 import red.panda.R;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +19,8 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v4.app.Fragment;
 
 import android.view.inputmethod.InputMethodManager;
+
+import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
 import android.view.MenuItem;
 import android.view.Menu;
@@ -53,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null)
         {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         }
 
         FragmentUtils.replaceFragmentWith(new HomeFragment(), this, false);
@@ -65,7 +70,32 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
         socket.emit("auth", SharedPrefUtils.getAuthToken(this));
         socket.connect();
+
+        socket.on("conversation:post:response", emitter);
     }
+
+    private Emitter.Listener emitter = new Emitter.Listener()
+    {
+        @Override
+        public void call(Object... args)
+        {
+            NotificationManager notificationManager = (NotificationManager)
+                    getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+            Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
+            intent.putExtra("MSG_ID", args[0].toString());
+            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                    (int)System.currentTimeMillis(), intent, 0);
+
+            Notification n  = new Notification.Builder(getApplicationContext())
+                    .setContentTitle("You have a new personal message")
+                    .setSmallIcon(R.drawable.launcher)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                    .build();
+
+            notificationManager.notify(0, n);
+        }
+    };
 
     @Override
     public void onDrawerItemSelected(View view, int position)
@@ -94,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             if (getSupportActionBar() != null)
                 getSupportActionBar().setTitle(title);
         }
+
     }
 
     @Override

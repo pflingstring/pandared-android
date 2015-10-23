@@ -6,12 +6,12 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.android.volley.Response;
+import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
 
 import org.json.JSONArray;
@@ -33,14 +33,25 @@ import red.panda.utils.misc.RequestQueueSingleton;
 
 public class ConversationFragment extends Fragment
 {
+    public static final String UNREAD_MESSAGES = "red.panda.unreadMessages";
     ConversationAdapter adapter;
     RecyclerView.LayoutManager layoutManager;
     RecyclerView recyclerView;
 
     Conversation[] dataSet;
     Set<String> unreadMessages;
+    Socket socket = SocketUtils.init();
 
     public ConversationFragment() {}
+
+    public static ConversationFragment newInstance(String unreadMsgId)
+    {
+        ConversationFragment fragment = new ConversationFragment();
+        Bundle arguments = new Bundle();
+        arguments.putString(UNREAD_MESSAGES, unreadMsgId);
+        fragment.setArguments(arguments);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -56,18 +67,50 @@ public class ConversationFragment extends Fragment
                 dataSet = JsonUtils.toConversationArray(response);
                 adapter = new ConversationAdapter(dataSet);
                 recyclerView.setAdapter(adapter);
+
+                if (getArguments() != null)
+                {
+                    //TODO: add adapter notify method
+                    String id = getArguments().getString(UNREAD_MESSAGES);
+                    int position = adapter.getItemPosition(id);
+                    adapter.setUnread(position);
+                    adapter.notifyItemChanged(position);
+                }
             }
         };
         ConversationRequest request = ConversationUtils.requestConversations(conversationListener, conversationError, getActivity());
         RequestQueueSingleton.addToQueue(request, getActivity());
+
+        socket.on("conversation:post:response", emitter);
     }
+
+    Emitter.Listener emitter = new Emitter.Listener()
+    {
+        @Override
+        public void call(Object... args)
+        {
+            JSONObject json = ((JSONObject) args[0]);
+            int position = adapter.getItemPosition(JsonUtils.getFieldFromJSON(json, "id"));
+            adapter.setUnread(position);
+            adapter.notifyItemChanged(position);
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState)
     {
-        View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
-        layoutManager = new LinearLayoutManager(getActivity());
+        if (adapter != null && getArguments() != null)
+        {
+            recyclerView.setAdapter(adapter);
+            String id = getArguments().getString(UNREAD_MESSAGES);
+            int position = adapter.getItemPosition(id);
+            adapter.setUnread(position);
+            adapter.notifyItemChanged(position);
+        }
 
+        View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
+
+        layoutManager = new LinearLayoutManager(getActivity());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.peopleList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
@@ -80,6 +123,9 @@ public class ConversationFragment extends Fragment
             {
                 try
                 {
+                    if (adapter != null)
+                        recyclerView.setAdapter(adapter);
+
                     JSONArray unreadJson = new JSONObject(response).getJSONArray("data");
                     unreadMessages = new HashSet<>();
                     for (int i = 0; i < unreadJson.length(); i++)
@@ -89,7 +135,7 @@ public class ConversationFragment extends Fragment
                         unreadMessages.add(conversation.getId());
                     }
 
-                    if (unreadMessages != null)
+                    if (unreadMessages != null && adapter != null)
                         for (String id : unreadMessages)
                         {
                             int position = adapter.getItemPosition(id);
