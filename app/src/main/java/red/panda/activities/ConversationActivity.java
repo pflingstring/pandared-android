@@ -1,12 +1,15 @@
 package red.panda.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.inputmethod.InputMethodManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -51,8 +54,9 @@ public class ConversationActivity extends AppCompatActivity
             e.printStackTrace();
         }
         String id = JsonUtils.getFieldFromJSON(json, "id");
-        ConversationFragment fragment = ConversationFragment.newInstance(id);
-        FragmentUtils.replaceFragmentWith(fragment, this, true);
+        String username = JsonUtils.getFieldFromJSON(json, "username");
+        ConversationFragment fragment = ConversationFragment.newInstance(id, username);
+        FragmentUtils.replaceFragmentWith(fragment, this, false);
     }
 
     @Override
@@ -66,17 +70,41 @@ public class ConversationActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+        ActionBarDrawerToggle drawToggle = drawerFragment.getDrawerToggle();
+        if (drawToggle.isDrawerIndicatorEnabled() &&
+                drawToggle.onOptionsItemSelected(item))
+        { return true; }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings)
+        switch (item.getItemId())
         {
-            return true;
+            case android.R.id.home :
+                onBackPressed();
+                return true;
+
+            default :
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void onBackPressed()
+    {
+        super.onBackPressed();
+
+        if (getSupportActionBar() != null)
+        {
+            getSupportActionBar().setTitle("Conversations");
+            getSupportActionBar().setIcon(android.R.color.transparent);
         }
 
-        return super.onOptionsItemSelected(item);
+        // hide soft keyboard
+        InputMethodManager inputMethodManager = (InputMethodManager)
+                this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        if (getCurrentFocus() != null)
+        {
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+
+        drawerFragment.setDrawerToggle(true);
     }
+
 }

@@ -97,8 +97,11 @@ public class DisplayConversationFragment extends Fragment
             try
             {
                 json = new JSONObject(author);
-                avatarUrl = ConversationUtils.makeAvatarURL(json.getString("avatar"));
-                username = JsonUtils.getFieldFromJSON(json, "name");
+                if (json.has("avatar"))
+                    avatarUrl = ConversationUtils.makeAvatarURL(json.getString("avatar"));
+                else
+                    avatarUrl = null;
+                username = JsonUtils.getFieldFromJSON(json, "username");
             }
             catch (JSONException e)
             {

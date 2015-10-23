@@ -34,6 +34,7 @@ import red.panda.utils.misc.RequestQueueSingleton;
 public class ConversationFragment extends Fragment
 {
     public static final String UNREAD_MESSAGES = "red.panda.unreadMessages";
+    public static final String USERNAME = "red.panda.username";
     ConversationAdapter adapter;
     RecyclerView.LayoutManager layoutManager;
     RecyclerView recyclerView;
@@ -44,11 +45,12 @@ public class ConversationFragment extends Fragment
 
     public ConversationFragment() {}
 
-    public static ConversationFragment newInstance(String unreadMsgId)
+    public static ConversationFragment newInstance(String unreadMsgId, String username)
     {
         ConversationFragment fragment = new ConversationFragment();
         Bundle arguments = new Bundle();
         arguments.putString(UNREAD_MESSAGES, unreadMsgId);
+        arguments.putString(USERNAME, username);
         fragment.setArguments(arguments);
         return fragment;
     }
