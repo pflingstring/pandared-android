@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +23,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import red.panda.R;
-import red.panda.activities.ConversationActivity;
 import red.panda.adapters.ConversationAdapter;
 import red.panda.models.Conversation;
 import red.panda.requests.ConversationRequest;
@@ -61,7 +61,28 @@ public class ConversationFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
         socket.on("conversation:post:response", emitter);
+    }
+
+    public void onResume()
+    {
+        super.onResume();
+
+        Response.ErrorListener conversationError = ConversationUtils.createErrorListener(getActivity(), "ERROR");
+        Response.Listener<String> conversationListener = new Response.Listener<String>()
+        {
+            @Override
+            public void onResponse(String response)
+            {
+                bindDataToAdapter(response);
+            }
+        };
+        ConversationRequest request = ConversationUtils.requestConversations(
+                conversationListener
+                , conversationError
+                , getActivity());
+        RequestQueueSingleton.addToQueue(request, getActivity());
     }
 
     public void bindDataToAdapter(String data)
@@ -69,50 +90,7 @@ public class ConversationFragment extends Fragment
         Conversation[] array = JsonUtils.toConversationArray(data);
         adapter = new ConversationAdapter(array);
         dataSet = array;
-    }
-
-    Emitter.Listener emitter = new Emitter.Listener()
-    {
-        @Override
-        public void call(Object... args)
-        {
-            JSONObject json = JsonUtils.getJson(
-                (JSONObject) args[0]
-                , "message"
-            );
-
-            if (!UserUtils.userIsMe(JsonUtils.getFieldFromJSON(
-                json
-                , "authorId"
-            )))
-            {
-                int position = adapter.getItemPosition(JsonUtils.getFieldFromJSON(json, "id"));
-                adapter.setUnread(position);
-                adapter.notifyItemChanged(position);
-            }
-
-        }
-    };
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState)
-    {
-        if (adapter != null && getArguments() != null)
-        {
-            recyclerView.setAdapter(adapter);
-            String id = getArguments().getString(UNREAD_MESSAGES);
-            int position = adapter.getItemPosition(id);
-            adapter.setUnread(position);
-            adapter.notifyItemChanged(position);
-        }
-
-        View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
-
-
-        layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.peopleList);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
 
         Response.ErrorListener errListener = ConversationUtils.createErrorListener(getActivity(), "UNREAD ERROR");
         Response.Listener<String> listener = new Response.Listener<String>()
@@ -151,6 +129,47 @@ public class ConversationFragment extends Fragment
         };
         ConversationRequest unreadReq = ConversationUtils.requestConversationByID("unread", listener, errListener, getActivity());
         RequestQueueSingleton.addToQueue(unreadReq, getActivity());
+    }
+
+    Emitter.Listener emitter = new Emitter.Listener()
+    {
+        @Override
+        public void call(Object... args)
+        {
+            JSONObject json = JsonUtils.getJson(
+                (JSONObject) args[0]
+                , "message"
+            );
+
+            if (!UserUtils.userIsMe(JsonUtils.getFieldFromJSON(
+                json
+                , "authorId"
+            )))
+            {
+                int position = adapter.getItemPosition(JsonUtils.getFieldFromJSON(
+                        (JSONObject) args[0]
+                        , "id"));
+                adapter.setUnread(position);
+                adapter.notifyItemChanged(position);
+            }
+
+        }
+    };
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState)
+    {
+        if (adapter != null)
+        {
+            recyclerView.setAdapter(adapter);
+        }
+
+        View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
+
+        layoutManager = new LinearLayoutManager(getActivity());
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.peopleList);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(layoutManager);
 
         ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener()
         {
@@ -189,8 +208,15 @@ public class ConversationFragment extends Fragment
     }
 
     @Override
+
     public void onDetach()
     {
         super.onDetach();
+    }
+
+    @Override
+    public void onStop()
+    {
+        super.onStop();
     }
 }

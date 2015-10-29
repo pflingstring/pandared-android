@@ -2,12 +2,9 @@ package red.panda.activities;
 
 import red.panda.activities.fragments.ConversationFragment;
 import red.panda.activities.fragments.FragmentDrawer;
-import red.panda.adapters.ConversationAdapter;
-import red.panda.models.Conversation;
 import red.panda.requests.ConversationRequest;
 import red.panda.utils.ConversationUtils;
 import red.panda.utils.FragmentUtils;
-import red.panda.utils.JsonUtils;
 import red.panda.R;
 import red.panda.utils.SocketUtils;
 import red.panda.utils.misc.RequestQueueSingleton;
@@ -16,40 +13,32 @@ import android.content.Intent;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.view.MenuItem;
 import android.view.Menu;
 
-import org.json.JSONObject;
-
 import android.app.Activity;
 import android.os.Bundle;
 
 import com.android.volley.Response;
-import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
 
 public class ConversationActivity extends AppCompatActivity
     implements FragmentDrawer.FragmentDrawerListener
 {
     FragmentDrawer drawerFragment;
-    ConversationAdapter adapter;
-    RecyclerView recyclerView;
-    RecyclerView.LayoutManager layoutManager;
     Socket socket = SocketUtils.init();
     Toolbar toolbar;
-
-    public String dataSet = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversation);
+
+        socket.off();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -82,7 +71,6 @@ public class ConversationActivity extends AppCompatActivity
 
         FragmentUtils.replaceFragmentWith(fragment, this, false);
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu)

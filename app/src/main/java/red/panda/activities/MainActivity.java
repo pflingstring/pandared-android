@@ -1,6 +1,6 @@
 package red.panda.activities;
 
-import red.panda.activities.fragments.ConversationFragment;
+import red.panda.activities.fragments.DisplayConversationFragment;
 import red.panda.activities.fragments.FragmentDrawer;
 import red.panda.activities.fragments.HomeFragment;
 import red.panda.utils.JsonUtils;
@@ -14,11 +14,11 @@ import red.panda.R;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v4.app.Fragment;
 
 import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         {
             Intent login = new Intent(this, LoginActivity.class);
             startActivity(login);
-            finish();
             return;
         }
 
@@ -76,10 +75,10 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         socket.emit("auth", SharedPrefUtils.getAuthToken(this));
         socket.connect();
 
-        socket.on("conversation:post:response", emitter);
+        socket.on("conversation:post:response", notificationEmitter);
     }
 
-    private Emitter.Listener emitter = new Emitter.Listener()
+    private Emitter.Listener notificationEmitter = new Emitter.Listener()
     {
         @Override
         public void call(Object... args)
@@ -89,12 +88,8 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
                     , "message"
             );
 
-            if (!UserUtils.userIsMe(JsonUtils.getFieldFromJSON(
-                    json
-                    , "authorId"
-            )))
+            if (!UserUtils.userIsMe(JsonUtils.getFieldFromJSON(json, "authorId")))
             {
-                Log.d("--------------", Constants.User.ID);
                 NotificationManager notificationManager = (NotificationManager)
                         getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
                 Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
@@ -113,6 +108,14 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
             }
         }
     };
+
+    @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        socket.on("conversation:post:response", notificationEmitter);
+    }
 
     @Override
     public void onDrawerItemSelected(View view, int position)
@@ -203,5 +206,11 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         }
 
         drawerFragment.setDrawerToggle(true);
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
     }
 }
