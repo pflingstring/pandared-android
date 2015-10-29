@@ -70,7 +70,8 @@ public class ConversationUtils
         return Toast.makeText(context, message, length);
     }
 
-    static Listener<String> createResponse(final Context context, @Nullable final String id, final RecyclerView view, @Nullable final String user)
+    static Listener<String> createResponse(final Context context, @Nullable final String id, final RecyclerView view
+            , @Nullable final String user, final int position)
     {
         return new Listener<String>()
         {
@@ -78,26 +79,26 @@ public class ConversationUtils
             public void onResponse(String response)
             {
                 FragmentActivity activity = (FragmentActivity) context;
-                Fragment fragment = DisplayConversationFragment.newInstance(response, user);
+                Fragment fragment = DisplayConversationFragment.newInstance(response, user, position);
                 FragmentUtils.replaceFragmentWith(fragment, activity, true);
             }
         };
     }
 
     public static ConversationRequest createRequest(@Nullable String id, Context context,
-            @Nullable RecyclerView view, @Nullable String user)
+            @Nullable RecyclerView view, @Nullable String user, int position)
     {
         ErrorListener errListener = createErrorListener(context, "ConversationUtils error");
         Listener<String> resListener;
 
         if (id == null)
         {
-            resListener = createResponse(context, null, view, null);
+            resListener = createResponse(context, null, view, null, -1);
             return requestConversations(resListener, errListener, context);
         }
         else
         {
-            resListener = createResponse(context, id, null, user);
+            resListener = createResponse(context, id, null, user, position);
             return requestConversationByID(id, resListener, errListener, context);
         }
     }

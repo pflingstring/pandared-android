@@ -22,12 +22,14 @@ import java.util.HashSet;
 import java.util.Set;
 
 import red.panda.R;
+import red.panda.activities.ConversationActivity;
 import red.panda.adapters.ConversationAdapter;
 import red.panda.models.Conversation;
 import red.panda.requests.ConversationRequest;
 import red.panda.utils.ConversationUtils;
 import red.panda.utils.JsonUtils;
 import red.panda.utils.SocketUtils;
+import red.panda.utils.UserUtils;
 import red.panda.utils.misc.ItemClickSupport;
 import red.panda.utils.misc.RequestQueueSingleton;
 
@@ -35,11 +37,11 @@ public class ConversationFragment extends Fragment
 {
     public static final String UNREAD_MESSAGES = "red.panda.unreadMessages";
     public static final String USERNAME = "red.panda.username";
-    ConversationAdapter adapter;
+    public ConversationAdapter adapter;
     RecyclerView.LayoutManager layoutManager;
     RecyclerView recyclerView;
 
-    Conversation[] dataSet;
+    Conversation[] dataSet =  null;
     Set<String> unreadMessages;
     Socket socket = SocketUtils.init();
 
@@ -59,31 +61,14 @@ public class ConversationFragment extends Fragment
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
-        Response.ErrorListener conversationError = ConversationUtils.createErrorListener(getActivity(), "ERROR");
-        Response.Listener<String> conversationListener = new Response.Listener<String>()
-        {
-            @Override
-            public void onResponse(String response)
-            {
-                dataSet = JsonUtils.toConversationArray(response);
-                adapter = new ConversationAdapter(dataSet);
-                recyclerView.setAdapter(adapter);
-
-                if (getArguments() != null)
-                {
-                    //TODO: add adapter notify method
-                    String id = getArguments().getString(UNREAD_MESSAGES);
-                    int position = adapter.getItemPosition(id);
-                    adapter.setUnread(position);
-                    adapter.notifyItemChanged(position);
-                }
-            }
-        };
-        ConversationRequest request = ConversationUtils.requestConversations(conversationListener, conversationError, getActivity());
-        RequestQueueSingleton.addToQueue(request, getActivity());
-
         socket.on("conversation:post:response", emitter);
+    }
+
+    public void bindDataToAdapter(String data)
+    {
+        Conversation[] array = JsonUtils.toConversationArray(data);
+        adapter = new ConversationAdapter(array);
+        dataSet = array;
     }
 
     Emitter.Listener emitter = new Emitter.Listener()
@@ -91,10 +76,21 @@ public class ConversationFragment extends Fragment
         @Override
         public void call(Object... args)
         {
-            JSONObject json = ((JSONObject) args[0]);
-            int position = adapter.getItemPosition(JsonUtils.getFieldFromJSON(json, "id"));
-            adapter.setUnread(position);
-            adapter.notifyItemChanged(position);
+            JSONObject json = JsonUtils.getJson(
+                (JSONObject) args[0]
+                , "message"
+            );
+
+            if (!UserUtils.userIsMe(JsonUtils.getFieldFromJSON(
+                json
+                , "authorId"
+            )))
+            {
+                int position = adapter.getItemPosition(JsonUtils.getFieldFromJSON(json, "id"));
+                adapter.setUnread(position);
+                adapter.notifyItemChanged(position);
+            }
+
         }
     };
 
@@ -111,6 +107,7 @@ public class ConversationFragment extends Fragment
         }
 
         View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
+
 
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.peopleList);
@@ -162,6 +159,7 @@ public class ConversationFragment extends Fragment
             {
                 Conversation conversation = dataSet[position];
                 conversation.setHasUnreadMessages(false);
+                adapter.notifyItemChanged(position);
 
                 Socket socket = SocketUtils.init();
                 try
@@ -175,7 +173,8 @@ public class ConversationFragment extends Fragment
                     e.printStackTrace();
                 }
 
-                ConversationRequest request = ConversationUtils.createRequest(conversation.getId(), getActivity(), null, conversation.getUser().toString());
+                ConversationRequest request = ConversationUtils.createRequest(conversation.getId(),
+                        getActivity(), null, conversation.getUser().toString(), position);
                 RequestQueueSingleton.addToQueue(request, getActivity());
             }
         });

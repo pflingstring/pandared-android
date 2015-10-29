@@ -1,6 +1,7 @@
 package red.panda.activities.fragments;
 
 import red.panda.adapters.DisplayConversationAdapter;
+import red.panda.utils.FragmentUtils;
 import red.panda.utils.misc.RequestQueueSingleton;
 import red.panda.utils.ConversationUtils;
 import red.panda.utils.ToolbarUtils;
@@ -42,6 +43,7 @@ public class DisplayConversationFragment extends Fragment
 {
     public DisplayConversationFragment() {}
 
+    private static final String MESSAGE_ID = "red.panda.message_id";
     private static final String MESSAGES = "red.panda.messages";
     private static final String AUTHOR = "red.panda.author";
     private String messages;
@@ -53,12 +55,13 @@ public class DisplayConversationFragment extends Fragment
     Toolbar toolbar;
     Socket socket = SocketUtils.init();
 
-    public static DisplayConversationFragment newInstance(String response, String id)
+    public static DisplayConversationFragment newInstance(String response, String id, int messagePosition)
     {
         DisplayConversationFragment fragment = new DisplayConversationFragment();
         Bundle args = new Bundle();
         args.putString(MESSAGES, response);
         args.putString(AUTHOR, id);
+        args.putInt(MESSAGE_ID, messagePosition);
         fragment.setArguments(args);
 
         return fragment;
@@ -234,8 +237,8 @@ public class DisplayConversationFragment extends Fragment
     {
         switch (item.getItemId())
         {
-            case android.R.id.home:
-                return true;
+//            case android.R.id.home:
+//                return true;
 
             default:
                 return super.onOptionsItemSelected(item);

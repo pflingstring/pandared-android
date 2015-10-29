@@ -3,7 +3,9 @@ package red.panda.activities;
 import red.panda.activities.fragments.ConversationFragment;
 import red.panda.activities.fragments.FragmentDrawer;
 import red.panda.activities.fragments.HomeFragment;
+import red.panda.utils.JsonUtils;
 import red.panda.utils.SocketUtils;
+import red.panda.utils.UserUtils;
 import red.panda.utils.misc.SharedPrefUtils;
 import red.panda.utils.misc.Constants;
 import red.panda.utils.FragmentUtils;
@@ -18,6 +20,7 @@ import android.support.v7.widget.Toolbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v4.app.Fragment;
 
+import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -29,6 +32,8 @@ import android.view.View;
 import android.content.Intent;
 import android.app.Activity;
 import android.os.Bundle;
+
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements FragmentDrawer.FragmentDrawerListener
 {
@@ -79,21 +84,33 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         @Override
         public void call(Object... args)
         {
-            NotificationManager notificationManager = (NotificationManager)
-                    getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
-            Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
-            intent.putExtra("MSG_ID", args[0].toString());
-            PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
-                    (int)System.currentTimeMillis(), intent, 0);
+            JSONObject json = JsonUtils.getJson(
+                    (JSONObject) args[0]
+                    , "message"
+            );
 
-            Notification n  = new Notification.Builder(getApplicationContext())
-                    .setContentTitle("You have a new personal message")
-                    .setSmallIcon(R.drawable.launcher)
-                    .setContentIntent(pendingIntent)
-                    .setAutoCancel(true)
-                    .build();
+            if (!UserUtils.userIsMe(JsonUtils.getFieldFromJSON(
+                    json
+                    , "authorId"
+            )))
+            {
+                Log.d("--------------", Constants.User.ID);
+                NotificationManager notificationManager = (NotificationManager)
+                        getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
+                Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
+                intent.putExtra("MSG_ID", args[0].toString());
+                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
+                        (int)System.currentTimeMillis(), intent, 0);
 
-            notificationManager.notify(0, n);
+                Notification n  = new Notification.Builder(getApplicationContext())
+                        .setContentTitle("You have a new personal message")
+                        .setSmallIcon(R.drawable.launcher)
+                        .setContentIntent(pendingIntent)
+                        .setAutoCancel(true)
+                        .build();
+
+                notificationManager.notify(0, n);
+            }
         }
     };
 
@@ -105,25 +122,24 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
 
     private void displayView(int position)
     {
-        Fragment fragment = null;
+        Intent intent = null;
         String title = getString(R.string.app_name);
         switch (position)
         {
             case 0:
-                fragment = new ConversationFragment();
+                intent = new Intent(this, ConversationActivity.class);
                 title = getString(R.string.conversation);
                 break;
+
             default:
                 break;
         }
 
-        if (fragment != null)
-        {
-            FragmentUtils.replaceFragmentWith(fragment, this, true);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(title);
 
-            if (getSupportActionBar() != null)
-                getSupportActionBar().setTitle(title);
-        }
+        if (intent != null)
+            startActivity(intent);
 
     }
 
