@@ -28,6 +28,8 @@ import android.view.View;
 
 import com.android.volley.toolbox.ImageLoader;
 import android.content.Context;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.widget.EditText;
@@ -245,4 +247,30 @@ public class DisplayConversationFragment extends Fragment
         }
     }
 
+    @Override
+    public void onStop()
+    {
+        super.onStop();
+
+        // mark conversation as seen leaving it
+        try
+        {
+            String conversationID = new JSONObject(
+                    getArguments().getString(MESSAGES))
+                    .getJSONArray("data")
+                    .getJSONObject(0)
+                    .getString("conversationId");
+
+
+            JSONObject jsonObject = (new JSONObject()).put(
+                    "captures"
+                    , JsonUtils.createJsonArray("captures", conversationID));
+
+            socket.emit("seen-on:post", jsonObject);
+        }
+        catch (JSONException e)
+        {
+            e.printStackTrace();
+        }
+    }
 }
