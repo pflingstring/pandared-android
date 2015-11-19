@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,7 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import red.panda.R;
@@ -41,7 +42,7 @@ public class ConversationFragment extends Fragment
     RecyclerView.LayoutManager layoutManager;
     RecyclerView recyclerView;
 
-    Conversation[] dataSet =  null;
+    List<Conversation> dataSet = new ArrayList<>();
     Set<String> unreadMessages;
     Socket socket = SocketUtils.init();
 
@@ -87,9 +88,8 @@ public class ConversationFragment extends Fragment
 
     public void bindDataToAdapter(String data)
     {
-        Conversation[] array = JsonUtils.toConversationArray(data);
-        adapter = new ConversationAdapter(array);
-        dataSet = array;
+        dataSet = JsonUtils.toConversationList(data);
+        adapter = new ConversationAdapter(dataSet);
         recyclerView.setAdapter(adapter);
 
         Response.ErrorListener errListener = ConversationUtils.createErrorListener(getActivity(), "UNREAD ERROR");
@@ -152,7 +152,6 @@ public class ConversationFragment extends Fragment
                 adapter.setUnread(position);
                 adapter.notifyItemChanged(position);
             }
-
         }
     };
 
@@ -176,7 +175,7 @@ public class ConversationFragment extends Fragment
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v)
             {
-                Conversation conversation = dataSet[position];
+                Conversation conversation = dataSet.get(position);
                 conversation.setHasUnreadMessages(false);
                 adapter.notifyItemChanged(position);
 

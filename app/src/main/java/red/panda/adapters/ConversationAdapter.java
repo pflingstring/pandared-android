@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.TimeZone;
@@ -32,13 +33,13 @@ import red.panda.utils.misc.RequestQueueSingleton;
 
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder>
 {
-    private Conversation[] dataSet;
+    private List<Conversation> dataSet;
 
     public int getItemPosition(String id)
     {
-        for (int i=0; i<dataSet.length; i++)
+        for (int i=0; i<dataSet.size(); i++)
         {
-            Conversation conversation = dataSet[i];
+            Conversation conversation = dataSet.get(i);
             if (id.equals(conversation.getId()))
                 return i;
         }
@@ -47,10 +48,10 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     public void setUnread(int position)
     {
-        dataSet[position].setHasUnreadMessages(true);
+        dataSet.get(position).setHasUnreadMessages(true);
     }
 
-    public ConversationAdapter(Conversation[] conversations)
+    public ConversationAdapter(List<Conversation> conversations)
     {
         dataSet = conversations;
     }
@@ -121,7 +122,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     {
         Context context = viewHolder.avatar.getContext();
 
-        Conversation conversation = dataSet[position];
+        Conversation conversation = dataSet.get(position);
         User author = conversation.getUser();
 
         if (author != null)
@@ -155,13 +156,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @Override
     public int getItemCount()
     {
-        return dataSet.length;
+        return dataSet.size();
     }
 
     @Override
     public int getItemViewType(int position)
     {
-        if (dataSet[position].hasUnreadMessages())
+        if (dataSet.get(position).hasUnreadMessages())
             return 1;
 
         return 0;

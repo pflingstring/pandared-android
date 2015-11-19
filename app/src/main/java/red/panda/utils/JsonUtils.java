@@ -3,6 +3,8 @@ package red.panda.utils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,27 +12,22 @@ import red.panda.models.Conversation;
 
 public class JsonUtils
 {
-    public static Conversation[] toConversationArray(String json)
+    public static List<Conversation> toConversationList(String json)
     {
-        Conversation[] result;
+        List<Conversation> result = new ArrayList<>();
         try
         {
-            JSONObject jsonObject = new JSONObject(json);
-            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            JSONArray jsonArray = new JSONObject(json).getJSONArray("data");
 
-            int length = jsonArray.length();
-            result = new Conversation[length];
-
-            for (int i=0; i<length; i++)
-                result[i] = new Conversation(jsonArray.getJSONObject(i));
+            for (int i=0; i<jsonArray.length(); i++)
+                result.add(new Conversation(jsonArray.getJSONObject(i)));
 
             return result;
-
         }
         catch (JSONException e)
         {
             e.printStackTrace();
-            return result = null;
+            return result;
         }
     }
 
