@@ -1,6 +1,5 @@
 package red.panda.activities;
 
-import red.panda.activities.fragments.DisplayConversationFragment;
 import red.panda.activities.fragments.FragmentDrawer;
 import red.panda.activities.fragments.HomeFragment;
 import red.panda.utils.JsonUtils;
@@ -14,14 +13,10 @@ import red.panda.R;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.support.v4.widget.DrawerLayout;
-
-import android.util.Log;
-import android.view.inputmethod.InputMethodManager;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.Socket;
@@ -30,7 +25,6 @@ import android.view.Menu;
 import android.view.View;
 
 import android.content.Intent;
-import android.app.Activity;
 import android.os.Bundle;
 
 import org.json.JSONObject;
@@ -115,6 +109,8 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         super.onResume();
 
         socket.on("conversation:post:response", notificationEmitter);
+        if (getSupportActionBar() != null)
+            getSupportActionBar().setTitle(R.string.app_name);
     }
 
     @Override
@@ -190,20 +186,6 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
-        if (getSupportActionBar() != null)
-        {
-            getSupportActionBar().setTitle("Conversations");
-            getSupportActionBar().setIcon(android.R.color.transparent);
-        }
-
-        // hide soft keyboard
-        InputMethodManager inputMethodManager = (InputMethodManager)
-                this.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        if (getCurrentFocus() != null)
-        {
-            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        }
 
         drawerFragment.setDrawerToggle(true);
     }
