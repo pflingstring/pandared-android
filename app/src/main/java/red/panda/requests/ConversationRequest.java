@@ -4,9 +4,11 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.Response.Listener;
 
+import red.panda.utils.misc.Constants;
+
 public class ConversationRequest extends StringRequest
 {
-    public static final String URL = "https://api.panda.red/pm/";
+    public static final String URL = Constants.SERVER_URL + "/pm/";
     // TODO : add join as parameter to constructor
 
     /**

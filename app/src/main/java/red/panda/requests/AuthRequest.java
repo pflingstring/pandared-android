@@ -14,9 +14,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import android.util.Log;
 
+import red.panda.utils.misc.Constants;
+
 public class AuthRequest extends JsonObjectRequest
 {
-    static String url = "https://api.panda.red/auth/default";
+    static String url = Constants.SERVER_URL + "/auth/default";
 
     public AuthRequest(String userData, Listener<JSONObject> listener, ErrorListener error)
     {

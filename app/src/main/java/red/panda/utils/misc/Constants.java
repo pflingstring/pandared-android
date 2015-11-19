@@ -5,13 +5,14 @@ import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import red.panda.Config;
 import red.panda.utils.JsonUtils;
 
 public class Constants
 {
     public Constants() {}
 
-    public static final String SERVER_URL = "https://api.panda.red";
+    public static final String SERVER_URL = Config.ENV.LOCAL;
 
     public static class Conversation
     {
