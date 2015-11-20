@@ -1,32 +1,46 @@
 package red.panda.models;
 
-import org.json.JSONObject;
 import red.panda.utils.JsonUtils;
-import red.panda.utils.misc.Constants;
+import org.json.JSONObject;
 
 public class Conversation
 {
-
     private String id;
+    private User user;
     private String lastReplyOn;
     private String lastMessage;
-    private User user;
-
-
     private boolean hasUnreadMessages;
 
-    public Conversation(JSONObject jsonInput)
+    private Conversation(JSONObject json, User user)
     {
-        if (jsonInput.has("author") && jsonInput.has("to"))
-            user = JsonUtils.getFieldFromJSON(jsonInput, "authorId").equals(Constants.User.ID)
-                    ? new User(JsonUtils.getJson(jsonInput, "to"))
-                    : new User(JsonUtils.getJson(jsonInput, "author"));
-
-        id = JsonUtils.getFieldFromJSON(jsonInput, "id");
-        lastReplyOn = JsonUtils.getFieldFromJSON(jsonInput, "lastReplyOn");
+        id = JsonUtils.getFieldFromJSON(json, "id");
+        lastReplyOn = JsonUtils.getFieldFromJSON(json, "lastReplyOn");
         lastMessage = "not implemented yet";
         hasUnreadMessages = false;
+        this.user = user;
     }
+
+    public static Conversation createConversationWithUser(JSONObject json)
+    {
+        User user = User.getAuthor(
+                JsonUtils.getJson(json, "author"),
+                JsonUtils.getJson(json, "to"));
+        return new Conversation(json, user);
+    }
+
+    private Conversation(JSONObject json)
+    {
+        id = JsonUtils.getFieldFromJSON(json, "id");
+        lastReplyOn = JsonUtils.getFieldFromJSON(json, "lastReplyOn");
+        lastMessage = "not implemented yet";
+        hasUnreadMessages = true;
+    }
+
+    public static Conversation createUnreadConversation(JSONObject json)
+    {
+        return new Conversation(json);
+    }
+
 
     public void setHasUnreadMessages(boolean flag)
     {

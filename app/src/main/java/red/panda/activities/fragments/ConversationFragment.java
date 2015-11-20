@@ -107,7 +107,7 @@ public class ConversationFragment extends Fragment
                     unreadMessages = new HashSet<>();
                     for (int i = 0; i < unreadJson.length(); i++)
                     {
-                        Conversation conversation = new Conversation(unreadJson.getJSONObject(i));
+                        Conversation conversation = Conversation.createUnreadConversation(unreadJson.getJSONObject(i));
                         conversation.setHasUnreadMessages(true);
                         unreadMessages.add(conversation.getId());
                     }

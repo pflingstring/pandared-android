@@ -20,7 +20,7 @@ public class JsonUtils
             JSONArray jsonArray = new JSONObject(json).getJSONArray("data");
 
             for (int i=0; i<jsonArray.length(); i++)
-                result.add(new Conversation(jsonArray.getJSONObject(i)));
+                result.add(Conversation.createConversationWithUser(jsonArray.getJSONObject(i)));
 
             return result;
         }
