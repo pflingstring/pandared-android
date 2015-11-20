@@ -1,7 +1,9 @@
 package red.panda.utils;
 
+import red.panda.Config;
 import red.panda.activities.fragments.DisplayConversationFragment;
 import red.panda.requests.ConversationRequest;
+import red.panda.utils.misc.Constants;
 import red.panda.utils.misc.SharedPrefUtils;
 
 import com.android.volley.Response.ErrorListener;
@@ -105,7 +107,12 @@ public class ConversationUtils
 
     public static String makeAvatarURL(String id)
     {
-        String url = "https://i.imgur.com/";
+        String url;
+        if (Constants.SERVER_URL.equals(Config.ENV.LOCAL))
+            url = "http://localhost";
+        else
+            url = "https://i.imgur.com/";
+
         return url + id + "s.png";
     }
 }
