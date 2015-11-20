@@ -3,7 +3,6 @@ package red.panda.activities.fragments;
 import red.panda.adapters.DisplayConversationAdapter;
 import red.panda.models.ConversationMessage;
 import red.panda.utils.misc.RequestQueueSingleton;
-import red.panda.utils.ConversationUtils;
 import red.panda.utils.ToolbarUtils;
 import red.panda.utils.SocketUtils;
 import red.panda.utils.JsonUtils;
@@ -37,18 +36,22 @@ import android.os.Handler;
 import android.os.Bundle;
 
 
-
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DisplayConversationFragment extends Fragment
 {
     public DisplayConversationFragment() {}
 
-    private static final String MESSAGE_ID = "red.panda.message_id";
     private static final String MESSAGES = "red.panda.messages";
-    private static final String AUTHOR = "red.panda.author";
+    private static final String USERNAME = "red.panda.author";
+    private static final String USER_ID  = "red.panda.userId";
+    private static final String AVATAR   = "red.panda.avatar";
     private String messages;
-    private String author;
+    private String username;
+    private String userId;
+    private String avatar;
 
     RecyclerView.LayoutManager layoutManager;
     DisplayConversationAdapter adapter = new DisplayConversationAdapter();
@@ -56,13 +59,15 @@ public class DisplayConversationFragment extends Fragment
     Toolbar toolbar;
     Socket socket = SocketUtils.init();
 
-    public static DisplayConversationFragment newInstance(String response, String id, int messagePosition)
+    public static DisplayConversationFragment newInstance(String messages,
+            String username, String userId, String avatar)
     {
         DisplayConversationFragment fragment = new DisplayConversationFragment();
         Bundle args = new Bundle();
-        args.putString(MESSAGES, response);
-        args.putString(AUTHOR, id);
-        args.putInt(MESSAGE_ID, messagePosition);
+        args.putString(MESSAGES, messages);
+        args.putString(USERNAME, username);
+        args.putString(USER_ID, userId);
+        args.putString(AVATAR, avatar);
         fragment.setArguments(args);
 
         return fragment;
@@ -76,7 +81,9 @@ public class DisplayConversationFragment extends Fragment
         if (getArguments() != null)
         {
             messages = getArguments().getString(MESSAGES);
-            author = getArguments().getString(AUTHOR);
+            username = getArguments().getString(USERNAME);
+            userId = getArguments().getString(USER_ID);
+            avatar = getArguments().getString(AVATAR);
         }
 
         setHasOptionsMenu(true);
@@ -96,28 +103,9 @@ public class DisplayConversationFragment extends Fragment
             actionBar.setDisplayHomeAsUpEnabled(true);
 
             ImageLoader loader = RequestQueueSingleton.getInstance(activity).getImageLoader();
-            JSONObject json;
-            String avatarUrl, username;
-            try
-            {
-                json = new JSONObject(author);
-                if (json.has("avatar"))
-                    avatarUrl = ConversationUtils.makeAvatarURL(json.getString("avatar"));
-                else
-                    avatarUrl = null;
-                username = JsonUtils.getFieldFromJSON(json, "username");
-            }
-            catch (JSONException e)
-            {
-                e.printStackTrace();
-                avatarUrl = null;
-                username  = null;
-            }
             ToolbarUtils.setTitle(toolbar, username);
-            if (avatarUrl != null)
-            {
-                ToolbarUtils.setAvatar(toolbar, avatarUrl, loader, getActivity());
-            }
+            if (avatar != null)
+                ToolbarUtils.setAvatar(toolbar, avatar, loader, getActivity());
         }
 
         socket.on("conversation:post:response", emitter);
@@ -175,11 +163,9 @@ public class DisplayConversationFragment extends Fragment
     public void showSoftKeyboard(View view)
     {
         if (view.requestFocus())
-        {
-            InputMethodManager imm = (InputMethodManager) getActivity().
-                    getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-        }
+            ((InputMethodManager) getActivity()
+                .getSystemService(Context.INPUT_METHOD_SERVICE))
+                .showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
     }
 
     public void onViewCreated(View view, Bundle savedInstanceState)
@@ -195,14 +181,13 @@ public class DisplayConversationFragment extends Fragment
             {
                 showSoftKeyboard(view);
 
-                Handler handler = new Handler();
-                handler.postDelayed(new Runnable()
+                new Handler().postDelayed(new Runnable()
                 {
                     public void run()
                     {
                         layoutManager.scrollToPosition(adapter.getItemCount() - 1);
                     }
-                }, 250);
+                }, 300);
                 return true;
             }
         });
@@ -215,19 +200,10 @@ public class DisplayConversationFragment extends Fragment
             public void onClick(View view)
             {
                 EditText editText = (EditText) getActivity().findViewById(R.id.message_input);
-                JSONObject result = new JSONObject();
-
-                String input = editText.getText().toString();
-                try
-                {
-                    result.put("msg", input);
-                    result.put("userId", new JSONObject(author).getString("id"));
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
-                socket.emit("conversation:post", result);
+                Map<String, String> message = new HashMap<>();
+                message.put("msg", editText.getText().toString());
+                message.put("userId", userId);
+                socket.emit("conversation:post", new JSONObject(message));
                 editText.setText("");
             }
         });
@@ -238,9 +214,6 @@ public class DisplayConversationFragment extends Fragment
     {
         switch (item.getItemId())
         {
-//            case android.R.id.home:
-//                return true;
-
             default:
                 return super.onOptionsItemSelected(item);
         }

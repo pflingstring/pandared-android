@@ -2,6 +2,7 @@ package red.panda.utils;
 
 import red.panda.Config;
 import red.panda.activities.fragments.DisplayConversationFragment;
+import red.panda.models.User;
 import red.panda.requests.ConversationRequest;
 import red.panda.utils.misc.Constants;
 import red.panda.utils.misc.SharedPrefUtils;
@@ -18,6 +19,10 @@ import android.widget.Toast;
 
 import android.support.annotation.Nullable;
 import android.content.Context;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,7 +86,22 @@ public class ConversationUtils
             public void onResponse(String response)
             {
                 FragmentActivity activity = (FragmentActivity) context;
-                Fragment fragment = DisplayConversationFragment.newInstance(response, user, position);
+
+                User author;
+                try
+                {
+                    author = new User(new JSONObject(user));
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                    author = null;
+                }
+
+                Fragment fragment = null;
+                if (author != null)
+                    fragment = DisplayConversationFragment.newInstance(response,
+                        author.getUsername(), author.getId(), author.getAvatar());
                 FragmentUtils.replaceFragmentWith(fragment, activity, true);
             }
         };
