@@ -13,20 +13,21 @@ import org.json.JSONObject;
 import java.util.List;
 
 import red.panda.R;
+import red.panda.models.ConversationMessage;
 import red.panda.utils.misc.Constants;
 
 public class DisplayConversationAdapter extends RecyclerView.Adapter<DisplayConversationAdapter.ViewHolder>
 {
-    private List<JSONObject> dataSet;
+    private List<ConversationMessage> dataSet;
 
-    public void setDataSet(List<JSONObject> dataSet)
+    public void setDataSet(List<ConversationMessage> dataSet)
     {
         this.dataSet = dataSet;
     }
 
     public void addItemToDataSet(JSONObject json)
     {
-        dataSet.add(json);
+        dataSet.add(new ConversationMessage(json));
     }
 
     public DisplayConversationAdapter() {}
@@ -69,20 +70,7 @@ public class DisplayConversationAdapter extends RecyclerView.Adapter<DisplayConv
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int position)
     {
-        JSONObject jsonObject = dataSet.get(position);
-        String id, message, previousID;
-
-        try
-        {
-            id = jsonObject.getString("authorId");
-            message = jsonObject.getString("msg");
-
-            viewHolder.setMessage(message);
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-        }
+        viewHolder.setMessage(dataSet.get(position).getMessage());
     }
 
     @Override
@@ -94,20 +82,7 @@ public class DisplayConversationAdapter extends RecyclerView.Adapter<DisplayConv
     @Override
     public int getItemViewType(int position)
     {
-        JSONObject jsonObject = dataSet.get(position);
-        String currentID, myID;
-        try
-        {
-            currentID = jsonObject.getString("authorId");
-            myID = new JSONObject(Constants.User.USER_DETAILS).getString("id");
-        }
-        catch (JSONException e)
-        {
-            e.printStackTrace();
-            return -1;
-        }
-
-        if (currentID.equals(myID))
+        if (dataSet.get(position).isAuthorIsMe())
             return Constants.Conversation.AUTHOR_IS_ME;
         else
             return Constants.Conversation.AUTHOR_IS_NOT_ME;

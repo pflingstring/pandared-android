@@ -1,7 +1,7 @@
 package red.panda.activities.fragments;
 
 import red.panda.adapters.DisplayConversationAdapter;
-import red.panda.utils.FragmentUtils;
+import red.panda.models.ConversationMessage;
 import red.panda.utils.misc.RequestQueueSingleton;
 import red.panda.utils.ConversationUtils;
 import red.panda.utils.ToolbarUtils;
@@ -29,7 +29,6 @@ import android.view.View;
 import com.android.volley.toolbox.ImageLoader;
 import android.content.Context;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import android.widget.EditText;
@@ -162,7 +161,7 @@ public class DisplayConversationFragment extends Fragment
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(layoutManager);
 
-        List<JSONObject> input = JsonUtils.toListOfJSON(messages);
+        List<ConversationMessage> input = JsonUtils.toListOfMessages(messages);
         if (input != null)
         {
             adapter.setDataSet(input);

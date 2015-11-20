@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import red.panda.models.Conversation;
+import red.panda.models.ConversationMessage;
 
 public class JsonUtils
 {
@@ -31,22 +32,21 @@ public class JsonUtils
         }
     }
 
-    public static List<JSONObject> toListOfJSON(String json)
+    public static List<ConversationMessage> toListOfMessages(String json)
     {
-        List<JSONObject> result = new LinkedList<>();
+        List<ConversationMessage> result = new LinkedList<>();
         try
         {
-            JSONObject jsonObject = new JSONObject(json);
-            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            JSONArray jsonArray = new JSONObject(json).getJSONArray("data");
             for (int i=0; i<jsonArray.length(); i++)
-                result.add(jsonArray.getJSONObject(i));
+                result.add(new ConversationMessage(jsonArray.getJSONObject(i)));
 
             return result;
         }
         catch (JSONException e)
         {
             e.printStackTrace();
-            return result = null;
+            return result;
         }
     }
 
