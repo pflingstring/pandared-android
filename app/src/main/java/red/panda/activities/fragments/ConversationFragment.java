@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import com.android.volley.Response;
@@ -74,6 +75,9 @@ public class ConversationFragment extends Fragment
     public void onResume()
     {
         super.onResume();
+
+        ImageButton button = (ImageButton) getActivity().findViewById(R.id.sendNewMessage);
+        button.setVisibility(View.VISIBLE);
 
         if (!socket.hasListeners("conversation:post:response"))
             socket.on("conversation:post:response", emitter);

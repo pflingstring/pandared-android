@@ -20,6 +20,10 @@ import android.view.Menu;
 import android.app.Activity;
 import android.os.Bundle;
 
+import org.json.JSONObject;
+import java.util.HashMap;
+import java.util.Map;
+
 public class ConversationActivity extends AppCompatActivity
     implements FragmentDrawer.FragmentDrawerListener
 {
@@ -126,9 +130,17 @@ public class ConversationActivity extends AppCompatActivity
         InputMethodManager inputMethodManager = (InputMethodManager)this
             .getSystemService(Activity.INPUT_METHOD_SERVICE);
         if (getCurrentFocus() != null)
-            inputMethodManager.hideSoftInputFromWindow(
-                getCurrentFocus().getWindowToken(), 0);
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
 
         drawerFragment.setDrawerToggle(true);
     }
+
+    public void sendNewPM(View view)
+    {
+        Map<String, String> message = new HashMap<>();
+        message.put("msg", "new messadj de la nixon haha lol");
+        message.put("userId", "1afec9e6-200c-4f82-b860-eeae14588597");
+        socket.emit("conversation:post", new JSONObject(message));
+    }
+
 }

@@ -36,6 +36,7 @@ import android.widget.EditText;
 import android.widget.Button;
 import android.os.Handler;
 import android.os.Bundle;
+import android.widget.ImageButton;
 
 
 import java.util.HashMap;
@@ -79,6 +80,9 @@ public class DisplayConversationFragment extends Fragment
         super.onCreate(savedInstanceState);
 
         socket.off();
+
+        ImageButton button = (ImageButton) getActivity().findViewById(R.id.sendNewMessage);
+        button.setVisibility(View.GONE);
 
         if (getArguments() != null)
         {
