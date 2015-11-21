@@ -24,7 +24,7 @@ public class NotificationUtils
 
         Notification n  = new Notification.Builder(context)
             .setContentTitle("You have a new personal message")
-            .setSmallIcon(R.drawable.launcher)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .build();
