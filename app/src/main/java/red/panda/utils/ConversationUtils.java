@@ -2,6 +2,7 @@ package red.panda.utils;
 
 import red.panda.Config;
 import red.panda.activities.fragments.DisplayConversationFragment;
+import red.panda.adapters.ConversationAdapter;
 import red.panda.requests.ConversationRequest;
 import red.panda.utils.misc.Constants;
 import red.panda.utils.misc.RequestQueueSingleton;
@@ -12,6 +13,7 @@ import com.android.volley.VolleyError;
 
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.widget.Toast;
 import android.content.Context;
 
@@ -38,7 +40,8 @@ public class ConversationUtils
         return Toast.makeText(context, message, length);
     }
 
-    public static void getUnreadMessages(Context context, final Set<String> result)
+    public static void getUnreadMessages(Context context, final Set<String> result,
+        final ConversationAdapter adapter, final RecyclerView recyclerView)
     {
         ErrorListener onError = createErrorListener(context, "Unable to get the unread messages");
         Listener<String> onResponse = new Listener<String>()
@@ -51,6 +54,15 @@ public class ConversationUtils
                     JSONArray unreadJson = new JSONObject(response).getJSONArray("data");
                     for (int i = 0; i < unreadJson.length(); i++)
                         result.add(unreadJson.getJSONObject(i).getString("id"));
+
+                    if (result != null && adapter != null)
+                        for (String id : result)
+                        {
+                            int position = adapter.getItemPosition(id);
+                            adapter.setHasUnread(position, true);
+                            adapter.notifyItemChanged(position);
+                        }
+                    recyclerView.setAdapter(adapter);
                 }
                 catch (JSONException e)
                 {

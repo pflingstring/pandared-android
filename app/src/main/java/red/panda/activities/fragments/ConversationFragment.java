@@ -38,7 +38,6 @@ public class ConversationFragment extends Fragment
 {
     private List<Conversation> dataSet = new ArrayList<>();
     private Set<String> unreadMessages = new HashSet<>();
-    private RecyclerView.LayoutManager layoutManager;
     private ConversationAdapter adapter;
     private RecyclerView recyclerView;
     Socket socket = SocketUtils.init();
@@ -74,16 +73,7 @@ public class ConversationFragment extends Fragment
     {
         super.onResume();
         socket.on("conversation:post:response", emitter);
-
-        ConversationUtils.getUnreadMessages(getActivity(), unreadMessages);
-        if (unreadMessages != null)
-            for (String id : unreadMessages)
-            {
-                int position = adapter.getItemPosition(id);
-                adapter.setHasUnread(position, true);
-                adapter.notifyItemChanged(position);
-            }
-        recyclerView.setAdapter(adapter);
+        ConversationUtils.getUnreadMessages(getActivity(), unreadMessages, adapter, recyclerView);
     }
 
     @Override
@@ -103,6 +93,8 @@ public class ConversationFragment extends Fragment
                     dataSet = JsonUtils.toConversationList(response);
                     adapter = new ConversationAdapter(dataSet);
                     recyclerView.setAdapter(adapter);
+
+                    ConversationUtils.getUnreadMessages(getActivity(), unreadMessages, adapter, recyclerView);
                 }
             };
             ConversationRequest request = new ConversationRequest(onResponse, onError);
@@ -111,7 +103,7 @@ public class ConversationFragment extends Fragment
 
         View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
 
-        layoutManager = new LinearLayoutManager(getActivity());
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView = (RecyclerView) rootView.findViewById(R.id.peopleList);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(layoutManager);
@@ -122,9 +114,6 @@ public class ConversationFragment extends Fragment
             public void onItemClicked(RecyclerView recyclerView, int position, View v)
             {
                 Conversation conversation = dataSet.get(position);
-                conversation.setHasUnreadMessages(false);
-                adapter.notifyItemChanged(position);
-
                 try
                 {
                     JSONArray jsonArray = JsonUtils.createJsonArray("captures", conversation.getId());
@@ -137,12 +126,11 @@ public class ConversationFragment extends Fragment
                 {
                     e.printStackTrace();
                 }
-
-                ConversationRequest request = ConversationUtils.getConversationMessages(conversation.getId(), getActivity(), conversation.getUser().toString());
+                ConversationRequest request = ConversationUtils.getConversationMessages(
+                    conversation.getId(), getActivity(), conversation.getUser().toString());
                 RequestQueueSingleton.addToQueue(request, getActivity());
             }
         });
-
         return rootView;
     }
 
@@ -153,7 +141,6 @@ public class ConversationFragment extends Fragment
     }
 
     @Override
-
     public void onDetach()
     {
         super.onDetach();
