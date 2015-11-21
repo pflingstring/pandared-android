@@ -78,6 +78,8 @@ public class DisplayConversationFragment extends Fragment
     {
         super.onCreate(savedInstanceState);
 
+        socket.off();
+
         if (getArguments() != null)
         {
             messages = getArguments().getString(MESSAGES);

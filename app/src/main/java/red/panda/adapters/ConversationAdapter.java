@@ -46,9 +46,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         return -1;
     }
 
-    public void setUnread(int position)
+    public void setHasUnread(int position, boolean flag)
     {
-        dataSet.get(position).setHasUnreadMessages(true);
+        dataSet.get(position).setHasUnreadMessages(flag);
     }
 
     public ConversationAdapter(List<Conversation> conversations)

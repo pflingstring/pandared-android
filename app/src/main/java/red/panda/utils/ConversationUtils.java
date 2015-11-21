@@ -2,65 +2,31 @@ package red.panda.utils;
 
 import red.panda.Config;
 import red.panda.activities.fragments.DisplayConversationFragment;
+import red.panda.models.Conversation;
 import red.panda.models.User;
 import red.panda.requests.ConversationRequest;
 import red.panda.utils.misc.Constants;
-import red.panda.utils.misc.SharedPrefUtils;
+import red.panda.utils.misc.RequestQueueSingleton;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
-import com.android.volley.AuthFailureError;
 import com.android.volley.VolleyError;
 
-import android.support.v7.widget.RecyclerView;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
 
-import android.support.annotation.Nullable;
 import android.content.Context;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ConversationUtils
 {
-    public static ConversationRequest requestConversations(Listener<String> resListener,
-            ErrorListener errListener, final Context context)
-    {
-        return new ConversationRequest(resListener, errListener)
-        {
-            // TODO: add headers to all requests automatically
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError
-            {
-                Map<String, String> headers = new HashMap<>();
-                String authToken = SharedPrefUtils.getAuthToken(context);
-                headers.put("Authorization", authToken);
-                return headers;
-            }
-        };
-    }
-
-    public static ConversationRequest requestConversationByID(String id,
-            Listener<String> resListener, ErrorListener errListener, final Context context)
-    {
-        return new ConversationRequest(id+"/?sort=-date", resListener, errListener)
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError
-            {
-                Map<String, String> headers = new HashMap<>();
-                String authToken = SharedPrefUtils.getAuthToken(context);
-                headers.put("Authorization", authToken);
-                return headers;
-            }
-        };
-    }
-
     public static ErrorListener createErrorListener(final Context context, final String message)
     {
         return new ErrorListener() {
@@ -77,52 +43,53 @@ public class ConversationUtils
         return Toast.makeText(context, message, length);
     }
 
-    static Listener<String> createResponse(final Context context, @Nullable final String id, final RecyclerView view
-            , @Nullable final String user, final int position)
+    public static void getUnreadMessages(Context context, final Set<String> result)
     {
-        return new Listener<String>()
+        ErrorListener onError = createErrorListener(context, "Unable to get the unread messages");
+        Listener<String> onResponse = new Listener<String>()
         {
             @Override
             public void onResponse(String response)
             {
-                FragmentActivity activity = (FragmentActivity) context;
-
-                User author;
                 try
                 {
-                    author = new User(new JSONObject(user));
+                    JSONArray unreadJson = new JSONObject(response).getJSONArray("data");
+                    for (int i = 0; i < unreadJson.length(); i++)
+                        result.add(unreadJson.getJSONObject(i).getString("id"));
                 }
                 catch (JSONException e)
                 {
                     e.printStackTrace();
-                    author = null;
                 }
-
-                Fragment fragment = null;
-                if (author != null)
-                    fragment = DisplayConversationFragment.newInstance(response,
-                        author.getUsername(), author.getId(), author.getAvatar());
-                FragmentUtils.replaceFragmentWith(fragment, activity, true);
             }
         };
+        ConversationRequest request = new ConversationRequest("unread", onResponse, onError);
+        RequestQueueSingleton.addToQueue(request, context);
     }
 
-    public static ConversationRequest createRequest(@Nullable String id, Context context,
-            @Nullable RecyclerView view, @Nullable String user, int position)
+
+    public static ConversationRequest getConversationMessages(String id, final FragmentActivity context, final String user)
     {
         ErrorListener errListener = createErrorListener(context, "ConversationUtils error");
-        Listener<String> resListener;
-
-        if (id == null)
+        Listener<String> listener = new Listener<String>()
         {
-            resListener = createResponse(context, null, view, null, -1);
-            return requestConversations(resListener, errListener, context);
-        }
-        else
-        {
-            resListener = createResponse(context, id, null, user, position);
-            return requestConversationByID(id, resListener, errListener, context);
-        }
+            @Override
+            public void onResponse(String response)
+            {
+                try
+                {
+                    User author = new User(new JSONObject(user));
+                    Fragment fragment = DisplayConversationFragment.newInstance(response,
+                            author.getUsername(), author.getId(), author.getAvatar());
+                    FragmentUtils.replaceFragmentWith(fragment, context, true);
+                }
+                catch (JSONException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        };
+        return new ConversationRequest(id, listener, errListener);
     }
 
     public static String makeAvatarURL(String id)

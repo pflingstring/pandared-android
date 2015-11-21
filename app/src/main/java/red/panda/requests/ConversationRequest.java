@@ -1,10 +1,15 @@
 package red.panda.requests;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.Response.Listener;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import red.panda.utils.misc.Constants;
+import red.panda.utils.misc.SharedPrefUtils;
 
 public class ConversationRequest extends StringRequest
 {
@@ -30,6 +35,15 @@ public class ConversationRequest extends StringRequest
     public ConversationRequest(String id, Listener<String> resListener, ErrorListener errorListener)
     {
         super(URL+id, resListener, errorListener);
+    }
+
+    @Override
+    public Map<String, String> getHeaders() throws AuthFailureError
+    {
+        Map<String, String> headers = new HashMap<>();
+        String authToken = Constants.User.AUTH_TOKEN;
+        headers.put("Authorization", authToken);
+        return headers;
     }
 
 }

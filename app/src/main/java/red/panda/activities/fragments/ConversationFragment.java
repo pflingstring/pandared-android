@@ -36,99 +36,20 @@ import red.panda.utils.misc.RequestQueueSingleton;
 
 public class ConversationFragment extends Fragment
 {
-    public static final String UNREAD_MESSAGES = "red.panda.unreadMessages";
-    public static final String USERNAME = "red.panda.username";
-    public ConversationAdapter adapter;
-    RecyclerView.LayoutManager layoutManager;
-    RecyclerView recyclerView;
-
-    List<Conversation> dataSet = new ArrayList<>();
-    Set<String> unreadMessages;
+    private List<Conversation> dataSet = new ArrayList<>();
+    private Set<String> unreadMessages = new HashSet<>();
+    private RecyclerView.LayoutManager layoutManager;
+    private ConversationAdapter adapter;
+    private RecyclerView recyclerView;
     Socket socket = SocketUtils.init();
 
     public ConversationFragment() {}
-
-    public static ConversationFragment newInstance(String unreadMsgId, String username)
-    {
-        ConversationFragment fragment = new ConversationFragment();
-        Bundle arguments = new Bundle();
-        arguments.putString(UNREAD_MESSAGES, unreadMsgId);
-        arguments.putString(USERNAME, username);
-        fragment.setArguments(arguments);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-
         socket.on("conversation:post:response", emitter);
-    }
-
-    public void onResume()
-    {
-        super.onResume();
-
-        Response.ErrorListener conversationError = ConversationUtils.createErrorListener(getActivity(), "ERROR");
-        Response.Listener<String> conversationListener = new Response.Listener<String>()
-        {
-            @Override
-            public void onResponse(String response)
-            {
-                bindDataToAdapter(response);
-            }
-        };
-        ConversationRequest request = ConversationUtils.requestConversations(
-                conversationListener
-                , conversationError
-                , getActivity());
-        RequestQueueSingleton.addToQueue(request, getActivity());
-    }
-
-    public void bindDataToAdapter(String data)
-    {
-        dataSet = JsonUtils.toConversationList(data);
-        adapter = new ConversationAdapter(dataSet);
-        recyclerView.setAdapter(adapter);
-
-        Response.ErrorListener errListener = ConversationUtils.createErrorListener(getActivity(), "UNREAD ERROR");
-        Response.Listener<String> listener = new Response.Listener<String>()
-        {
-            @Override
-            public void onResponse(String response)
-            {
-                try
-                {
-                    if (adapter != null)
-                        recyclerView.setAdapter(adapter);
-
-                    JSONArray unreadJson = new JSONObject(response).getJSONArray("data");
-                    unreadMessages = new HashSet<>();
-                    for (int i = 0; i < unreadJson.length(); i++)
-                    {
-                        Conversation conversation = Conversation.createUnreadConversation(unreadJson.getJSONObject(i));
-                        conversation.setHasUnreadMessages(true);
-                        unreadMessages.add(conversation.getId());
-                    }
-
-                    if (unreadMessages != null && adapter != null)
-                        for (String id : unreadMessages)
-                        {
-                            int position = adapter.getItemPosition(id);
-                            adapter.setUnread(position);
-                            adapter.notifyItemChanged(position);
-                        }
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
-
-            }
-        };
-        ConversationRequest unreadReq = ConversationUtils.requestConversationByID("unread", listener, errListener, getActivity());
-        RequestQueueSingleton.addToQueue(unreadReq, getActivity());
     }
 
     Emitter.Listener emitter = new Emitter.Listener()
@@ -136,31 +57,56 @@ public class ConversationFragment extends Fragment
         @Override
         public void call(Object... args)
         {
-            JSONObject json = JsonUtils.getJson(
-                (JSONObject) args[0]
-                , "message"
-            );
+            JSONObject json = JsonUtils.getJson((JSONObject) args[0], "message");
 
-            if (!UserUtils.userIsMe(JsonUtils.getFieldFromJSON(
-                json
-                , "authorId"
-            )))
+            if (!UserUtils.userIsMe(JsonUtils.getFieldFromJSON(json, "authorId")))
             {
                 int position = adapter.getItemPosition(JsonUtils.getFieldFromJSON(
-                        (JSONObject) args[0]
-                        , "id"));
-                adapter.setUnread(position);
+                    (JSONObject) args[0]
+                    , "id"));
+                adapter.setHasUnread(position, true);
                 adapter.notifyItemChanged(position);
             }
         }
     };
 
+    public void onResume()
+    {
+        super.onResume();
+        socket.on("conversation:post:response", emitter);
+
+        ConversationUtils.getUnreadMessages(getActivity(), unreadMessages);
+        if (unreadMessages != null)
+            for (String id : unreadMessages)
+            {
+                int position = adapter.getItemPosition(id);
+                adapter.setHasUnread(position, true);
+                adapter.notifyItemChanged(position);
+            }
+        recyclerView.setAdapter(adapter);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState)
     {
         if (adapter != null)
-        {
             recyclerView.setAdapter(adapter);
+        else
+        {
+            // load the conversations
+            final Response.ErrorListener onError = ConversationUtils.createErrorListener(getActivity(), "ERROR");
+            Response.Listener<String> onResponse = new Response.Listener<String>()
+            {
+                @Override
+                public void onResponse(String response)
+                {
+                    dataSet = JsonUtils.toConversationList(response);
+                    adapter = new ConversationAdapter(dataSet);
+                    recyclerView.setAdapter(adapter);
+                }
+            };
+            ConversationRequest request = new ConversationRequest(onResponse, onError);
+            RequestQueueSingleton.addToQueue(request, getActivity());
         }
 
         View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
@@ -179,20 +125,20 @@ public class ConversationFragment extends Fragment
                 conversation.setHasUnreadMessages(false);
                 adapter.notifyItemChanged(position);
 
-                Socket socket = SocketUtils.init();
                 try
                 {
                     JSONArray jsonArray = JsonUtils.createJsonArray("captures", conversation.getId());
                     JSONObject jsonObject = (new JSONObject()).put("captures", jsonArray);
                     socket.emit("seen-on:post", jsonObject);
+                    unreadMessages.remove(conversation.getId());
+                    adapter.setHasUnread(position, false);
                 }
                 catch (JSONException e)
                 {
                     e.printStackTrace();
                 }
 
-                ConversationRequest request = ConversationUtils.createRequest(conversation.getId(),
-                        getActivity(), null, conversation.getUser().toString(), position);
+                ConversationRequest request = ConversationUtils.getConversationMessages(conversation.getId(), getActivity(), conversation.getUser().toString());
                 RequestQueueSingleton.addToQueue(request, getActivity());
             }
         });
