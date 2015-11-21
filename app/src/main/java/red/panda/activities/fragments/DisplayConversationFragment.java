@@ -2,6 +2,7 @@ package red.panda.activities.fragments;
 
 import red.panda.adapters.DisplayConversationAdapter;
 import red.panda.models.ConversationMessage;
+import red.panda.models.User;
 import red.panda.utils.misc.RequestQueueSingleton;
 import red.panda.utils.ToolbarUtils;
 import red.panda.utils.SocketUtils;
@@ -44,10 +45,10 @@ public class DisplayConversationFragment extends Fragment
 {
     public DisplayConversationFragment() {}
 
+    private static final String CONVERSATION_ID = "red.panda.conversationId";
     private static final String MESSAGES = "red.panda.messages";
-    private static final String USERNAME = "red.panda.author";
-    private static final String USER_ID  = "red.panda.userId";
-    private static final String AVATAR   = "red.panda.avatar";
+    private static final String USER = "red.panda.user";
+    private String conversationId;
     private String messages;
     private String username;
     private String userId;
@@ -59,15 +60,13 @@ public class DisplayConversationFragment extends Fragment
     Toolbar toolbar;
     Socket socket = SocketUtils.init();
 
-    public static DisplayConversationFragment newInstance(String messages,
-            String username, String userId, String avatar)
+    public static DisplayConversationFragment newInstance(String messages, String user, String conversationId)
     {
         DisplayConversationFragment fragment = new DisplayConversationFragment();
         Bundle args = new Bundle();
+        args.putString(CONVERSATION_ID, conversationId);
         args.putString(MESSAGES, messages);
-        args.putString(USERNAME, username);
-        args.putString(USER_ID, userId);
-        args.putString(AVATAR, avatar);
+        args.putString(USER, user);
         fragment.setArguments(args);
 
         return fragment;
@@ -82,10 +81,19 @@ public class DisplayConversationFragment extends Fragment
 
         if (getArguments() != null)
         {
+            conversationId = getArguments().getString(CONVERSATION_ID);
             messages = getArguments().getString(MESSAGES);
-            username = getArguments().getString(USERNAME);
-            userId = getArguments().getString(USER_ID);
-            avatar = getArguments().getString(AVATAR);
+            try
+            {
+                User user = new User(new JSONObject(getArguments().getString(USER)));
+                username = user.getUsername();
+                avatar = user.getAvatar();
+                userId = user.getId();
+            }
+            catch (JSONException e)
+            {
+                e.printStackTrace();
+            }
         }
 
         setHasOptionsMenu(true);
@@ -126,17 +134,25 @@ public class DisplayConversationFragment extends Fragment
                     public void run()
                     {
                         JSONObject json = null;
+                        String jsonConvId = "";
                         try
                         {
                             json = ((JSONObject) args[0]).getJSONObject("message");
+                            jsonConvId = JsonUtils.getFieldFromJSON(json, "conversationId");
                         }
                         catch (JSONException e)
                         {
                             e.printStackTrace();
                         }
-                        adapter.addItemToDataSet(json);
-                        adapter.notifyItemInserted(adapter.getItemCount() - 1);
-                        layoutManager.scrollToPosition(adapter.getItemCount() - 1);
+
+                        if (conversationId.equals(jsonConvId))
+                        {
+                            adapter.addItemToDataSet(json);
+                            adapter.notifyItemInserted(adapter.getItemCount() - 1);
+                            layoutManager.scrollToPosition(adapter.getItemCount() - 1);
+
+                        }
+
                     }
                 });
         }

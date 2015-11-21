@@ -9,12 +9,14 @@ public final class ConversationMessage
 {
     private final String date;
     private final String message;
+    private final String conversationId;
     private final boolean authorIsMe;
 
     public ConversationMessage(JSONObject json)
     {
         date = JsonUtils.getFieldFromJSON(json, "date");
         message = JsonUtils.getFieldFromJSON(json, "msg");
+        conversationId = JsonUtils.getFieldFromJSON(json, "conversationId");
         authorIsMe = Constants.User.ID.equals(
                 JsonUtils.getFieldFromJSON(json, "authorId"));
     }
@@ -33,4 +35,10 @@ public final class ConversationMessage
     {
         return authorIsMe;
     }
+
+    public String getConversationId()
+    {
+        return conversationId;
+    }
+
 }

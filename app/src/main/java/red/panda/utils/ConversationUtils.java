@@ -2,8 +2,6 @@ package red.panda.utils;
 
 import red.panda.Config;
 import red.panda.activities.fragments.DisplayConversationFragment;
-import red.panda.models.Conversation;
-import red.panda.models.User;
 import red.panda.requests.ConversationRequest;
 import red.panda.utils.misc.Constants;
 import red.panda.utils.misc.RequestQueueSingleton;
@@ -15,14 +13,11 @@ import com.android.volley.VolleyError;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.Fragment;
 import android.widget.Toast;
-
 import android.content.Context;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.HashSet;
 import java.util.Set;
 
 public class ConversationUtils
@@ -68,7 +63,7 @@ public class ConversationUtils
     }
 
 
-    public static ConversationRequest getConversationMessages(String id, final FragmentActivity context, final String user)
+    public static ConversationRequest getConversationMessages(final String id, final FragmentActivity context, final String user)
     {
         ErrorListener errListener = createErrorListener(context, "ConversationUtils error");
         Listener<String> listener = new Listener<String>()
@@ -76,17 +71,8 @@ public class ConversationUtils
             @Override
             public void onResponse(String response)
             {
-                try
-                {
-                    User author = new User(new JSONObject(user));
-                    Fragment fragment = DisplayConversationFragment.newInstance(response,
-                            author.getUsername(), author.getId(), author.getAvatar());
-                    FragmentUtils.replaceFragmentWith(fragment, context, true);
-                }
-                catch (JSONException e)
-                {
-                    e.printStackTrace();
-                }
+                Fragment fragment = DisplayConversationFragment.newInstance(response, user, id);
+                FragmentUtils.replaceFragmentWith(fragment, context, true);
             }
         };
         return new ConversationRequest(id, listener, errListener);
