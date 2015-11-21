@@ -3,6 +3,7 @@ package red.panda.activities;
 import red.panda.activities.fragments.FragmentDrawer;
 import red.panda.activities.fragments.HomeFragment;
 import red.panda.utils.JsonUtils;
+import red.panda.utils.NotificationUtils;
 import red.panda.utils.SocketUtils;
 import red.panda.utils.UserUtils;
 import red.panda.utils.misc.SharedPrefUtils;
@@ -77,29 +78,11 @@ public class MainActivity extends AppCompatActivity implements FragmentDrawer.Fr
         @Override
         public void call(Object... args)
         {
-            JSONObject json = JsonUtils.getJson(
-                    (JSONObject) args[0]
-                    , "message"
-            );
+            JSONObject jsonArg = (JSONObject) args[0];
+            JSONObject json = JsonUtils.getJson(jsonArg, "message");
 
             if (!UserUtils.userIsMe(JsonUtils.getFieldFromJSON(json, "authorId")))
-            {
-                NotificationManager notificationManager = (NotificationManager)
-                        getApplicationContext().getSystemService(NOTIFICATION_SERVICE);
-                Intent intent = new Intent(getApplicationContext(), ConversationActivity.class);
-                intent.putExtra("MSG_ID", args[0].toString());
-                PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(),
-                        (int)System.currentTimeMillis(), intent, 0);
-
-                Notification n  = new Notification.Builder(getApplicationContext())
-                        .setContentTitle("You have a new personal message")
-                        .setSmallIcon(R.drawable.launcher)
-                        .setContentIntent(pendingIntent)
-                        .setAutoCancel(true)
-                        .build();
-
-                notificationManager.notify(0, n);
-            }
+                NotificationUtils.emitNotification(getApplicationContext(), jsonArg);
         }
     };
 

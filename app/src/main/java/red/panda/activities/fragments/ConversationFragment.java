@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.android.volley.Response;
 import com.github.nkzawa.emitter.Emitter;
@@ -38,6 +39,7 @@ public class ConversationFragment extends Fragment
 {
     private List<Conversation> dataSet = new ArrayList<>();
     private Set<String> unreadMessages = new HashSet<>();
+    private LinearLayoutManager layoutManager;
     private ConversationAdapter adapter;
     private RecyclerView recyclerView;
     Socket socket = SocketUtils.init();
@@ -72,16 +74,22 @@ public class ConversationFragment extends Fragment
     public void onResume()
     {
         super.onResume();
-        socket.on("conversation:post:response", emitter);
-        ConversationUtils.getUnreadMessages(getActivity(), unreadMessages, adapter, recyclerView);
+
+        if (!socket.hasListeners("conversation:post:response"))
+            socket.on("conversation:post:response", emitter);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, final ViewGroup container, Bundle savedInstanceState)
     {
-        if (adapter != null)
-            recyclerView.setAdapter(adapter);
-        else
+        View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
+
+        recyclerView = (RecyclerView) rootView.findViewById(R.id.peopleList);
+        recyclerView.setHasFixedSize(true);
+        layoutManager = new LinearLayoutManager(getActivity());
+        recyclerView.setLayoutManager(layoutManager);
+
+        if (adapter == null)
         {
             // load the conversations
             final Response.ErrorListener onError = ConversationUtils.createErrorListener(getActivity(), "ERROR");
@@ -100,13 +108,11 @@ public class ConversationFragment extends Fragment
             ConversationRequest request = new ConversationRequest(onResponse, onError);
             RequestQueueSingleton.addToQueue(request, getActivity());
         }
-
-        View rootView = inflater.inflate(R.layout.fragment_conversation, container, false);
-
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView = (RecyclerView) rootView.findViewById(R.id.peopleList);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(layoutManager);
+        else
+        {
+            recyclerView.setAdapter(adapter);
+            ConversationUtils.getUnreadMessages(getActivity(), unreadMessages, adapter, recyclerView);
+        }
 
         ItemClickSupport.addTo(recyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener()
         {
@@ -150,5 +156,6 @@ public class ConversationFragment extends Fragment
     public void onStop()
     {
         super.onStop();
+        socket.off("conversation:post:response", emitter);
     }
 }

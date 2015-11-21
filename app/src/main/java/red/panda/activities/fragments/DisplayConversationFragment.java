@@ -3,6 +3,7 @@ package red.panda.activities.fragments;
 import red.panda.adapters.DisplayConversationAdapter;
 import red.panda.models.ConversationMessage;
 import red.panda.models.User;
+import red.panda.utils.NotificationUtils;
 import red.panda.utils.misc.RequestQueueSingleton;
 import red.panda.utils.ToolbarUtils;
 import red.panda.utils.SocketUtils;
@@ -133,26 +134,18 @@ public class DisplayConversationFragment extends Fragment
                     @Override
                     public void run()
                     {
-                        JSONObject json = null;
-                        String jsonConvId = "";
-                        try
-                        {
-                            json = ((JSONObject) args[0]).getJSONObject("message");
-                            jsonConvId = JsonUtils.getFieldFromJSON(json, "conversationId");
-                        }
-                        catch (JSONException e)
-                        {
-                            e.printStackTrace();
-                        }
+                        JSONObject jsonArg = (JSONObject) args[0];
+                        JSONObject jsonMessage = JsonUtils.getJson(jsonArg, "message");
+                        String conversationId = JsonUtils.getFieldFromJSON(jsonMessage, "conversationId");
 
-                        if (conversationId.equals(jsonConvId))
+                        if (DisplayConversationFragment.this.conversationId.equals(conversationId))
                         {
-                            adapter.addItemToDataSet(json);
+                            adapter.addItemToDataSet(jsonMessage);
                             adapter.notifyItemInserted(adapter.getItemCount() - 1);
                             layoutManager.scrollToPosition(adapter.getItemCount() - 1);
-
                         }
-
+                        else
+                            NotificationUtils.emitNotification(getActivity(), jsonArg);
                     }
                 });
         }
@@ -238,9 +231,9 @@ public class DisplayConversationFragment extends Fragment
     }
 
     @Override
-    public void onStop()
+    public void onPause()
     {
-        super.onStop();
+        super.onPause();
 
         // mark conversation as seen leaving it
         try

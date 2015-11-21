@@ -56,13 +56,15 @@ public class ConversationUtils
                         result.add(unreadJson.getJSONObject(i).getString("id"));
 
                     if (result != null && adapter != null)
+                    {
                         for (String id : result)
                         {
                             int position = adapter.getItemPosition(id);
                             adapter.setHasUnread(position, true);
                             adapter.notifyItemChanged(position);
                         }
-                    recyclerView.setAdapter(adapter);
+                        recyclerView.setAdapter(adapter);
+                    }
                 }
                 catch (JSONException e)
                 {
