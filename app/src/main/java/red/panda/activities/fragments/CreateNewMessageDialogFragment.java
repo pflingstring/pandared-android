@@ -43,8 +43,7 @@ public class CreateNewMessageDialogFragment extends DialogFragment
         builder
             .setView(sendNewMessageView)
             .setPositiveButton("Send", onSendButton())
-            .setNegativeButton("Cancel", onCancelButton())
-            .setMessage("Send a new message");
+            .setNegativeButton("Cancel", onCancelButton());
 
         socket.off();
         return builder.create();
