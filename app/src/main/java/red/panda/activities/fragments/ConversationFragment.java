@@ -3,6 +3,7 @@ package red.panda.activities.fragments;
 import android.content.Context;
 import android.os.Bundle;
 
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,6 +47,16 @@ public class ConversationFragment extends Fragment
     Socket socket = SocketUtils.init();
 
     public ConversationFragment() {}
+
+    private static final String NEW_MESSAGE_CREATED = "red.panda.newMessageCreated";
+    public static ConversationFragment newInstance(boolean flag)
+    {
+        ConversationFragment fragment = new ConversationFragment();
+        Bundle args = new Bundle();
+        args.putBoolean(NEW_MESSAGE_CREATED, flag);
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -96,6 +107,10 @@ public class ConversationFragment extends Fragment
         if (adapter == null)
         {
             // load the conversations
+            final boolean newConversationCreated =
+                getArguments() != null &&
+                getArguments().getBoolean(NEW_MESSAGE_CREATED);
+
             final Response.ErrorListener onError = ConversationUtils.createErrorListener(getActivity(), "ERROR");
             Response.Listener<String> onResponse = new Response.Listener<String>()
             {
@@ -105,6 +120,21 @@ public class ConversationFragment extends Fragment
                     dataSet = JsonUtils.toConversationList(response);
                     adapter = new ConversationAdapter(dataSet);
                     recyclerView.setAdapter(adapter);
+
+                    if (newConversationCreated)
+                    {
+                        adapter.setHasUnread(0, true);
+                        adapter.notifyItemChanged(0);
+                        new Handler().postDelayed(new Runnable()
+                        {
+                            @Override
+                            public void run()
+                            {
+                                adapter.setHasUnread(0, false);
+                                adapter.notifyItemChanged(0);
+                            }
+                        }, 1250);
+                    }
 
                     ConversationUtils.getUnreadMessages(getActivity(), unreadMessages, adapter, recyclerView);
                 }

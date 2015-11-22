@@ -20,6 +20,7 @@ import android.view.MenuItem;
 import android.view.Menu;
 import android.app.Activity;
 import android.os.Bundle;
+import android.widget.Toast;
 
 public class ConversationActivity extends AppCompatActivity
     implements FragmentDrawer.FragmentDrawerListener
@@ -53,6 +54,14 @@ public class ConversationActivity extends AppCompatActivity
         drawerFragment.setUp(R.id.fragment_navigation_drawer,
             (DrawerLayout) findViewById(R.id.drawer_layout), toolbar);
         drawerFragment.setDrawerListener(this);
+
+        Intent intent = getIntent();
+        if (intent != null && intent.getBooleanExtra("NEW_MESSAGE", false))
+        {
+            ConversationFragment fragment = ConversationFragment.newInstance(true);
+            FragmentUtils.replaceFragmentWith(fragment, this, false);
+            return;
+        }
 
         // start conversation fragment
         final ConversationFragment fragment = new ConversationFragment();

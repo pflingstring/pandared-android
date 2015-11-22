@@ -1,7 +1,10 @@
 package red.panda.activities.fragments;
 
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.app.AlertDialog;
@@ -17,6 +20,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import red.panda.R;
+import red.panda.activities.ConversationActivity;
 import red.panda.requests.UserRequest;
 import red.panda.utils.JsonUtils;
 import red.panda.utils.SocketUtils;
@@ -33,12 +37,16 @@ public class CreateNewMessageDialogFragment extends DialogFragment
     private String message;
     private View sendNewMessageView;
 
+    private Context context;
+
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState)
     {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         LayoutInflater inflater = getActivity().getLayoutInflater();
         sendNewMessageView = inflater.inflate(R.layout.fragment_create_new_message, null);
+
+        context = getContext();
 
         builder
             .setView(sendNewMessageView)
@@ -62,6 +70,11 @@ public class CreateNewMessageDialogFragment extends DialogFragment
                 message = messageEditText.getText().toString();
 
                 RequestQueueSingleton.addToQueue(new UserRequest(username, onResponse, onError), getActivity());
+
+                Intent intent = new Intent(context, ConversationActivity.class);
+                intent.putExtra("NEW_MESSAGE", true);
+                startActivity(intent);
+
             }
         };
     }
