@@ -13,6 +13,7 @@
 
     <!--DisplayConversation-->
     <string name="send">Send</string>
+    <string name="cancel">Cancel</string>
     <string name="message">type a message</string>
 
 

@@ -1,6 +1,7 @@
 package red.panda.activities;
 
 import red.panda.activities.fragments.ConversationFragment;
+import red.panda.activities.fragments.CreateNewMessageDialogFragment;
 import red.panda.activities.fragments.FragmentDrawer;
 import red.panda.utils.FragmentUtils;
 import red.panda.R;
@@ -20,13 +21,10 @@ import android.view.Menu;
 import android.app.Activity;
 import android.os.Bundle;
 
-import org.json.JSONObject;
-import java.util.HashMap;
-import java.util.Map;
-
 public class ConversationActivity extends AppCompatActivity
     implements FragmentDrawer.FragmentDrawerListener
 {
+    private static final String NEW_MESSAGE_DIALOG = "red.panda.newMessageDialog";
     Socket socket = SocketUtils.init();
     FragmentDrawer drawerFragment;
     Toolbar toolbar;
@@ -137,10 +135,8 @@ public class ConversationActivity extends AppCompatActivity
 
     public void sendNewPM(View view)
     {
-        Map<String, String> message = new HashMap<>();
-        message.put("msg", "new messadj de la nixon haha lol");
-        message.put("userId", "1afec9e6-200c-4f82-b860-eeae14588597");
-        socket.emit("conversation:post", new JSONObject(message));
+        new CreateNewMessageDialogFragment()
+            .show(getSupportFragmentManager(), NEW_MESSAGE_DIALOG);
     }
 
 }
