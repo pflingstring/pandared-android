@@ -5,3 +5,4 @@ This project is abandoned because the server is no longer being developed.
 Implemented features:
 * user authentication / logout
 * chat using web sockets
+* notifications
